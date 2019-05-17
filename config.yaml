@@ -1,0 +1,13 @@
+port: 8083
+mongo:
+  user: root
+  pass: example
+  host: localhost:27017
+  db: document
+mysql:
+  user: interfacedev
+  pass: Interface@APIDev
+  db: apishopdev
+  protocal: tcp(172.22.228.224:3306)
+logger:
+  filename: logger.log

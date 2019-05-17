@@ -1,0 +1,13 @@
+{"time":"2019-05-15T18:30:43+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":405, "latency":1000900,"latency_human":"1.0009ms","bytes_in":75,"bytes_out":33}
+{"time":"2019-05-15T18:32:08+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/todos","status":200, "latency":7994100,"latency_human":"7.9941ms","bytes_in":75,"bytes_out":1224}
+{"time":"2019-05-15T18:32:34+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":405, "latency":0,"latency_human":"0s","bytes_in":75,"bytes_out":33}
+{"time":"2019-05-15T18:40:08+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":13010600,"latency_human":"13.0106ms","bytes_in":75,"bytes_out":952}
+{"time":"2019-05-15T18:44:12+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":8005000,"latency_human":"8.005ms","bytes_in":75,"bytes_out":952}
+{"time":"2019-05-15T18:45:03+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":9508500,"latency_human":"9.5085ms","bytes_in":75,"bytes_out":952}
+{"time":"2019-05-15T18:46:45+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":15513400,"latency_human":"15.5134ms","bytes_in":75,"bytes_out":952}
+{"time":"2019-05-15T18:48:02+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":8005300,"latency_human":"8.0053ms","bytes_in":75,"bytes_out":952}
+{"time":"2019-05-15T18:49:18+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":30020300,"latency_human":"30.0203ms","bytes_in":75,"bytes_out":952}
+{"time":"2019-05-15T19:30:58+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":9008400,"latency_human":"9.0084ms","bytes_in":75,"bytes_out":42}
+{"time":"2019-05-15T19:32:09+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":8508900,"latency_human":"8.5089ms","bytes_in":75,"bytes_out":42}
+{"time":"2019-05-15T19:37:29+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":14010000,"latency_human":"14.01ms","bytes_in":75,"bytes_out":1179}
+{"time":"2019-05-16T09:11:06+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"GET","uri":"/allusers","status":200, "latency":8550800,"latency_human":"8.5508ms","bytes_in":75,"bytes_out":1179}
