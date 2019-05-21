@@ -24,38 +24,32 @@ func CreateTodo(t *Todo) (*Todo, error) {
 }
 
 // UpdateTodo is all todos
-func UpdateTodo(idx string, t *Todo) (*Todo, error) {
+func UpdateTodo(id bson.ObjectId, t *Todo) (*Todo, error) {
 	var err error
 	conn := mongo.MongoManager().Copy()
 	defer conn.Close()
-
-	id := bson.ObjectIdHex(idx)
 
 	err = conn.DB("document").C("todo").UpdateId(id, t)
 	return t, err
 }
 
 // DeleteTodo is all todos
-func DeleteTodo(idx string) error {
+func DeleteTodo(id bson.ObjectId) error {
 	var err error
 	conn := mongo.MongoManager().Copy()
 	defer conn.Close()
-
-	id := bson.ObjectIdHex(idx)
 
 	err = conn.DB("document").C("todo").RemoveId(id)
 	return err
 }
 
 // FindTodoByID is all todos
-func FindTodoByID(idx string) (Todo, error) {
+func FindTodoByID(id bson.ObjectId) (Todo, error) {
 
 	var (
 		todo Todo
 		err  error
 	)
-
-	id := bson.ObjectIdHex(idx)
 
 	conn := mongo.MongoManager().Copy()
 	defer conn.Close()

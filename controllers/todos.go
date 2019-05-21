@@ -7,6 +7,8 @@ import (
 
 	//"go.mongodb.org/mongo-driver/bson"
 	//"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/globalsign/mgo/bson"
 	"github.com/labstack/echo"
 )
 
@@ -22,13 +24,13 @@ func List(c echo.Context) (err error) {
 
 // Create todo
 func Create(c echo.Context) (err error) {
-	//id := bson.NewObjectId()
+	id := bson.NewObjectId()
 	var t models.Todo
 	if err := c.Bind(&t); err != nil {
 		return err
 	}
 
-	//t.ID = id
+	t.ID = id
 	t.Done = false
 
 	//fmt.Println("todo => : ", &t)
@@ -41,8 +43,8 @@ func Create(c echo.Context) (err error) {
 
 // View todo
 func View(c echo.Context) (err error) {
-	//id := bson.ObjectIdHex(c.Param("id"))
-	id := c.Param("id")
+	id := bson.ObjectIdHex(c.Param("id"))
+	//id := c.Param("id")
 	result, err := models.FindTodoByID(id)
 	if err != nil {
 		return err
@@ -53,8 +55,8 @@ func View(c echo.Context) (err error) {
 
 // Done todo
 func Done(c echo.Context) (err error) {
-	//id := bson.ObjectIdHex(c.Param("id"))
-	id := c.Param("id")
+	id := bson.ObjectIdHex(c.Param("id"))
+	//id := c.Param("id")
 	var t models.Todo
 
 	t, err = models.FindTodoByID(id)
@@ -87,8 +89,8 @@ func Update(c echo.Context) (err error) {
 
 //Delete todo
 func Delete(c echo.Context) (err error) {
-	//id := bson.ObjectIdHex(c.Param("id"))
-	id := c.Param("id")
+	id := bson.ObjectIdHex(c.Param("id"))
+	//id := c.Param("id")
 	err = models.DeleteTodo(id)
 	if err != nil {
 		return err
