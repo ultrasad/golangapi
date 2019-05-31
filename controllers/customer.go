@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"context"
-	"strings"
 	"bytes"
+	"context"
 	"encoding/json"
 	"log"
-	"github.com/labstack/echo"
 	"net/http"
-	"fmt"
+	"strings"
+
+	"github.com/labstack/echo"
 
 	"golangapi/models"
 
@@ -16,14 +16,15 @@ import (
 )
 
 //Search return search result
-func Search(c echo.Context) (err error){
+func Search(c echo.Context) (err error) {
 
 	//ES Client
 	es := elastics.ESClient()
 
-	info, _ := es.Info()
-	fmt.Println("ES Client Info",info)
-	
+	// ES Info
+	//info, _ := es.Info()
+	//fmt.Println("ES Client Info", info)
+
 	// 3. Search for the indexed documents
 	// Build the request body.
 	var buf bytes.Buffer
@@ -81,7 +82,7 @@ func Search(c echo.Context) (err error){
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
 		log.Fatalf("Error parsing the response body: %s", err)
 	}
-	
+
 	// Print the response status, number of results, and request duration.
 	log.Printf(
 		"[%s] %d hits; took: %dms",
@@ -99,29 +100,28 @@ func Search(c echo.Context) (err error){
 
 		customers = append(customers, &models.Customer{
 			Firstname: hit.(map[string]interface{})["_source"].(map[string]interface{})["firstname"].(string),
-			Lastname: hit.(map[string]interface{})["_source"].(map[string]interface{})["lastname"].(string),
+			Lastname:  hit.(map[string]interface{})["_source"].(map[string]interface{})["lastname"].(string),
 		})
 	}
 
 	log.Println(strings.Repeat("~", 37)) //print ~
 
-	fmt.Println("customers => ", customers)
+	//fmt.Println("customers => ", customers)
 
 	//var result map[string]interface{}
 	//result["_source"] = r["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"]
 
-
 	//var customer models.Customer
-	
+
 	//return c.JSON(http.StatusOK, r["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"])
 	//return c.JSON(http.StatusOK, r["hits"].(map[string]interface{})["hits"].([]interface{})[0])
 	//return c.JSON(http.StatusOK, response["hits"].(map[string]interface{})["hits"].([]interface{}))
 	//return c.JSON(http.StatusOK, response["hits"])
 	return c.JSON(http.StatusOK, echo.Map{
-		"status": "success",
-		"total": int(r["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)),
-		"took": int(r["took"].(float64)),
+		"status":    "success",
+		"total":     int(r["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)),
+		"took":      int(r["took"].(float64)),
 		"customers": r["hits"].(map[string]interface{})["hits"].([]interface{}),
 	})
-  	//return err
+	//return err
 }

@@ -2,23 +2,25 @@ package routers
 
 import (
 	//"fmt"
-	"log"
+
 	"net/http"
 	"os"
-	"time"
 
 	"golangapi/controllers"
 	"golangapi/middlewares"
 
 	//"strconv"
-
 	//"github.com/google/logger"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+
 	//"github.com/spf13/viper"
 	//li "workshop01/middlewares/logwrapper"
 	//zaplogger "workshop01/middlewares/uberzap"
+	//"github.com/labstack/gommon/log"
+
+	log "github.com/sirupsen/logrus"
 )
 
 //Init func
@@ -30,31 +32,53 @@ func Init(e *echo.Echo) {
 	//2019-05-14, change log to logrus
 	//2019-05-17, move to Init
 
-	log.SetPrefix("api")
-	logger := log.New(os.Stderr, "", 0)
-	logger.SetOutput(&middlewares.Logger{Collection: "logger"}) //middleware log to mongodb
+	//Old ok, master 2019-05-31
+	/*
+		log.SetPrefix("api")
+		logger := log.New(os.Stderr, "", 0)
+		logger.SetOutput(&middlewares.Logger{Collection: "logger"}) //middleware log to mongodb
 
-	// Logger request, response
-	//logs fmt
+		// Logger request, response
+		//logs fmt
+		e.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
+			Handler: func(c echo.Context, reqBody, resBody []byte) {
+
+				//fmt.Println("req => ", reqBody)
+				//fmt.Println("res => ", resBody)
+
+				reqB := "\"\""
+				if len(reqBody) > 0 {
+					reqB = string(reqBody)
+				}
+
+				//fmt.Println(reqB)
+				logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
+			},
+		}))
+	*/
+
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&log.JSONFormatter{})
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+
+	// Only log the warning severity or above.
+	log.SetLevel(log.WarnLevel)
+
 	e.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
 		Handler: func(c echo.Context, reqBody, resBody []byte) {
 
-			//fmt.Println("req => ", reqBody)
-			//fmt.Println("res => ", resBody)
+			log.WithFields(log.Fields{
+				"animal": "walrus",
+			}).Info("A walrus appears")
 
-			reqB := "\"\""
-			if len(reqBody) > 0 {
-				reqB = string(reqBody)
-			}
+			log.WithFields(log.Fields{
+				"animal": "walrus",
+				"size":   10,
+			}).Warning("A group of walrus emerges from the ocean")
 
-			//fmt.Println(reqB)
-			logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-			/*
-				if(resBody != nil){
-					logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-				} else {
-					fmt.Println("response nil")
-				}*/
 		},
 	}))
 

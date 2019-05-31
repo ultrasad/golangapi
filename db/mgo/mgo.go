@@ -10,7 +10,7 @@ import (
 
 var (
 	mongoDB *mgo.Session
-	err   error
+	err     error
 )
 
 // ConnectMgo MongoDB Connect
@@ -26,8 +26,8 @@ func ConnectMgo() *mgo.Session {
 	}
 
 	//BuildInfo
-	info, _ := mongoDB.BuildInfo()
-	fmt.Println("Mgo Info",info)
+	//info, _ := mongoDB.BuildInfo()
+	//fmt.Println("Mgo Info",info)
 
 	return mongoDB
 }
