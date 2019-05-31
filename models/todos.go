@@ -2,7 +2,7 @@ package models
 
 import (
 	mongo "golangapi/db/mgo"
-
+	
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -16,7 +16,7 @@ type Todo struct {
 // CreateTodo is all todos
 func CreateTodo(t *Todo) (*Todo, error) {
 	var err error
-	conn := mongo.MongoManager().Copy()
+	conn := mongo.MongoClient().Copy()
 	defer conn.Close()
 
 	err = conn.DB("document").C("todo").Insert(&t)
@@ -26,7 +26,7 @@ func CreateTodo(t *Todo) (*Todo, error) {
 // UpdateTodo is all todos
 func UpdateTodo(id bson.ObjectId, t *Todo) (*Todo, error) {
 	var err error
-	conn := mongo.MongoManager().Copy()
+	conn := mongo.MongoClient().Copy()
 	defer conn.Close()
 
 	err = conn.DB("document").C("todo").UpdateId(id, t)
@@ -36,7 +36,7 @@ func UpdateTodo(id bson.ObjectId, t *Todo) (*Todo, error) {
 // DeleteTodo is all todos
 func DeleteTodo(id bson.ObjectId) error {
 	var err error
-	conn := mongo.MongoManager().Copy()
+	conn := mongo.MongoClient().Copy()
 	defer conn.Close()
 
 	err = conn.DB("document").C("todo").RemoveId(id)
@@ -51,7 +51,7 @@ func FindTodoByID(id bson.ObjectId) (Todo, error) {
 		err  error
 	)
 
-	conn := mongo.MongoManager().Copy()
+	conn := mongo.MongoClient().Copy()
 	defer conn.Close()
 
 	err = conn.DB("document").C("todo").FindId(id).One(&todo)
@@ -66,7 +66,7 @@ func FindAllTodos() ([]Todo, error) {
 		err   error
 	)
 
-	conn := mongo.MongoManager().Copy()
+	conn := mongo.MongoClient().Copy()
 	defer conn.Close()
 
 	err = conn.DB("document").C("todo").Find(nil).All(&todos)

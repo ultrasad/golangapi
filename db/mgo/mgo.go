@@ -23,13 +23,16 @@ func ConnectMgo() *mgo.Session {
 	mongoDB, err = mgo.Dial(connString)
 	if err != nil {
 		log.Printf("dial mongodb server with connection string %q: %v", connString, err)
-		//return
 	}
+
+	//BuildInfo
+	info, _ := mongoDB.BuildInfo()
+	fmt.Println("Mgo Info",info)
 
 	return mongoDB
 }
 
-// MongoManager return MongoDB Session
-func MongoManager() *mgo.Session {
+// MongoClient return MongoDB Session
+func MongoClient() *mgo.Session {
 	return mongoDB
 }

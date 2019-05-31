@@ -9,5 +9,7 @@ mysql:
   pass: Interface@APIDev
   db: apishopdev
   protocal: tcp(172.22.228.224:3306)
+elastics:
+  url: http://172.22.228.224:9200
 logger:
   filename: logger.log

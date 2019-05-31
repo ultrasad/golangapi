@@ -44,7 +44,7 @@ func ConnectMongo() *mongo.Client {
 	if err != nil {
         log.Fatal(err)
     }
-
+	
     err = mongoDBClient.Ping(context.TODO(), nil)
 
     if err != nil {

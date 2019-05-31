@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"log"
 
 	//"go.mongodb.org/mongo-driver/bson/primitive"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
@@ -74,12 +75,27 @@ func init() {
 
 func (lg *Logger) Write(logByte []byte) (n int, err error) {
 
+	//fmt.Println("log", lg)
+	//fmt.Println("logByte", logByte)
+
 	err = json.Unmarshal(logByte, &lg)
+	if err != nil {
+		log.Printf("error decoding response: %v", err)
+		if e, ok := err.(*json.SyntaxError); ok {
+			log.Printf("syntax error at byte offset %d", e.Offset)
+		}
+		log.Printf("response: %q", lg)
+		return len(logByte), nil
+		//return err
+	}
+	/*
 	if err != nil {
 		fmt.Println("\n err Logger, json Unmarshal >>>", err)
 		return
 	}
+	*/
 
+	//fmt.Println("lg.Message => ", lg.Message)
 	err = json.NewDecoder(strings.NewReader(lg.Message)).Decode(&lg.Data)
 
 	if err != nil {
@@ -101,10 +117,10 @@ func (lg *Logger) Write(logByte []byte) (n int, err error) {
 		fmt.Println("Inserted a Logger: ", insertResult.InsertedID)
 	}()
 	*/
-
+	
 	//MgoClient
 	go func() {
-		client := mgo.MongoManager().Copy()
+		client := mgo.MongoClient().Copy()
 		defer client.Close()
 
 		if err := client.DB("document").C(lg.Collection).Insert(&lg); err != nil {
@@ -151,7 +167,7 @@ func (lg *Logs) Write(logEcho []byte) (n int, err error) {
 
 	//MgoClient
 	go func() {
-		client := mgo.MongoManager().Copy()
+		client := mgo.MongoClient().Copy()
 		defer client.Close()
 
 		if err := client.DB("document").C(lg.Collection).Insert(&lg); err != nil {

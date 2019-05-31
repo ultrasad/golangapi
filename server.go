@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	//"net/http"
-	"golangapi/db/mongo"
+	//"golangapi/db/mongo"
 	"golangapi/db/mgo"
+	"golangapi/db/elastics"
 	"golangapi/routers"
 	"strings"
 
@@ -24,11 +25,15 @@ func main() {
 	e := echo.New()
 
 	//Start MongoDB Connect
-	mongo.ConnectMongo()
-
+	//Hold Mongo lib, It slower than mgo lib client
+	//mongo.ConnectMongo()
+	
 	//Start Mgo Connect
 	mgo.ConnectMgo()
 
+	//Start Elastics Connect
+	elastics.ConnectES()
+	
 	// Start Router
 	routers.Init(e)
 

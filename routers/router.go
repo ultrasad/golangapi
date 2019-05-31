@@ -39,12 +39,22 @@ func Init(e *echo.Echo) {
 	e.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
 		Handler: func(c echo.Context, reqBody, resBody []byte) {
 
+			//fmt.Println("req => ", reqBody)
+			//fmt.Println("res => ", resBody)
+
 			reqB := "\"\""
 			if len(reqBody) > 0 {
 				reqB = string(reqBody)
 			}
 
+			//fmt.Println(reqB)
 			logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
+			/*
+			if(resBody != nil){
+				logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
+			} else {
+				fmt.Println("response nil")
+			}*/
 		},
 	}))
 
@@ -80,6 +90,12 @@ func Init(e *echo.Echo) {
 
 	//GoRoutine
 	e.GET("/hello", controllers.CallHelloRoutine)
+
+	//Elastics Route
+	//e.GET("/esversion", controllers.ESVersion)
+
+	//Elastics Search
+	e.GET("/essearch", controllers.Search)
 
 	//e.Logger.Fatal(e.Start(port))
 }
