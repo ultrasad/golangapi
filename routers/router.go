@@ -29,11 +29,11 @@ func Init(e *echo.Echo) {
 	//log.SetPrefix("prefix")
 	//2019-05-14, change log to logrus
 	//2019-05-17, move to Init
-	
+
 	log.SetPrefix("api")
 	logger := log.New(os.Stderr, "", 0)
 	logger.SetOutput(&middlewares.Logger{Collection: "logger"}) //middleware log to mongodb
-	
+
 	// Logger request, response
 	//logs fmt
 	e.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
@@ -50,11 +50,11 @@ func Init(e *echo.Echo) {
 			//fmt.Println(reqB)
 			logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
 			/*
-			if(resBody != nil){
-				logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-			} else {
-				fmt.Println("response nil")
-			}*/
+				if(resBody != nil){
+					logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
+				} else {
+					fmt.Println("response nil")
+				}*/
 		},
 	}))
 
@@ -66,7 +66,7 @@ func Init(e *echo.Echo) {
 	}))
 
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: `{"time":"${time_rfc3339}","id":"${id}","remote_ip":"${remote_ip}","host":"${host}",` +
+		Format: `{"level":"${level}", "time":"${time_rfc3339}","id":"${id}","remote_ip":"${remote_ip}","host":"${host}",` +
 			`"method":"${method}","uri":"${uri}","status":${status}, "latency":${latency},` +
 			`"latency_human":"${latency_human}","bytes_in":${bytes_in},` +
 			`"bytes_out":${bytes_out}}` + "\r\n",
