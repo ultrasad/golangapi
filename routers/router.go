@@ -72,7 +72,7 @@ func Init(e *echo.Echo) {
 
 			log.WithFields(log.Fields{
 				"animal": "walrus",
-			}).Info("A walrus appears")
+			}).Warning("A walrus appears")
 
 			log.WithFields(log.Fields{
 				"animal": "walrus",
