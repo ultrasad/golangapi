@@ -13,3 +13,5 @@
 
 # Logs of req-res data
 /logs
+
+/.history

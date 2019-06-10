@@ -4,7 +4,6 @@ import (
 	//"fmt"
 
 	"net/http"
-	"os"
 
 	"golangapi/controllers"
 	"golangapi/middlewares"
@@ -20,7 +19,7 @@ import (
 	//zaplogger "workshop01/middlewares/uberzap"
 	//"github.com/labstack/gommon/log"
 
-	log "github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 )
 
 //Init func
@@ -58,26 +57,67 @@ func Init(e *echo.Echo) {
 	*/
 
 	// Log as JSON instead of the default ASCII formatter.
-	log.SetFormatter(&log.JSONFormatter{})
+	//jsonStr := `{"id": "", "req": "Test Req", "res": "Test Res"}`
+	logrus.SetFormatter(&logrus.JSONFormatter{
+		/*FieldMap: logrus.FieldMap{
+			logrus.FieldKeyTime:  "@timestamp",
+			logrus.FieldKeyLevel: "log.level",
+			logrus.FieldKeyMsg:   "message",
+			logrus.FieldKeyFunc:  "function.name", // non-ECS
+		},*/
+		FieldMap: logrus.FieldMap{
+			//logrus.FieldKeyMsg: "message",
+		},
+	})
 
 	// Output to stdout instead of the default stderr
 	// Can be any io.Writer, see below for File example
-	log.SetOutput(os.Stdout)
+	//log.SetOutput(os.Stdout)
+	//logrus.SetOutput(&middlewares.Logrus{Collection: "logger"})
+
+	//ljack := &middlewares.LoggerLumberjack()
+	//mWriter := io.MultiWriter(os.Stderr, &middlewares.Logrus{Collection: "logger"})
+	//log.SetOutput(mWriter)
+	logrus.SetOutput(&middlewares.Logrus{Collection: "logger"})
 
 	// Only log the warning severity or above.
-	log.SetLevel(log.WarnLevel)
+	logrus.SetLevel(logrus.WarnLevel)
 
 	e.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
 		Handler: func(c echo.Context, reqBody, resBody []byte) {
 
-			log.WithFields(log.Fields{
-				"animal": "walrus",
+			reqB := "\"\""
+			if len(reqBody) > 0 {
+				reqB = string(reqBody)
+			}
+
+			//logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
+
+			//jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
+			//var val []byte = []byte(fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody))
+			//s, _ := strconv.Unquote(string(val))
+			//jsonStr := &middlewares.Logrus{Data: s}
+
+			//jsonStr := []string{"1", "2", "3"}
+			logrus.WithFields(logrus.Fields{
+				//"type": "Animal",
+				//"name": "Chuche",
+				//"data":   {"id": "", "req": reqB, "res": reqBody},
+				//"data": fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody),
+				//"data":    &middlewares.Logrus{Data: {}},
+				"message": "{}",
+				//"id":      c.Response().Header().Get(echo.HeaderXRequestID),
+				//"req":     reqB,
+				//"res":     resBody,
+				"data": &middlewares.CtxLogger{ID: c.Response().Header().Get(echo.HeaderXRequestID), Req: reqB, Res: resBody},
 			}).Warning("A walrus appears")
 
-			log.WithFields(log.Fields{
-				"animal": "walrus",
-				"size":   10,
-			}).Warning("A group of walrus emerges from the ocean")
+			/*
+				logrus.WithFields(logrus.Fields{
+					"animal": "walrus",
+					"size":   10,
+				}).Warning("A group of walrus emerges from the ocean")
+			*/
 
 		},
 	}))
