@@ -35,40 +35,40 @@ type (
 		Collection string    `bson:"-"`
 	}
 
-	//CtxLogger struct of logger
+	//CtxLogger struct logger req,res
 	CtxLogger struct {
-		ID  string      `json:"id" bson:"id"`
-		Req interface{} `json:"req" bson:"request"`
-		Res interface{} `json:"res" bson:"response"`
+		ID  string      `bson:"id" json:"id" `
+		Req interface{} `bson:"request" json:"req"`
+		Res interface{} `bson:"response" json:"res"`
 	}
 
 	// Logs struct log from echo
 	Logs struct {
 		//ID           string    `json:"id" bson:"id"`
 		//ID           primitive.ObjectID    `json:"id" bson:"_id"`
-		Time         time.Time `json:"time" bson:"time"`
-		RemoteIP     string    `json:"remote_ip" bson:"remote_ip"`
-		Host         string    `json:"host" bson:"host"`
-		Method       string    `json:"method" bson:"method"`
-		URI          string    `json:"uri" bson:"uri"`
-		Status       int       `json:"status" bson:"status"`
-		Latency      int       `json:"latency" bson:"latency"`
-		LatencyHuman string    `json:"latency_human" bson:"latency_human"`
-		BytesIn      int       `json:"bytes_in" bson:"bytes_in"`
-		BytesOut     int       `json:"bytes_out" bson:"bytes_out"`
+		Time         time.Time `bson:"time" json:"time"`
+		RemoteIP     string    `bson:"remote_ip" json:"remote_ip"`
+		Host         string    `bson:"host" json:"host"`
+		Method       string    `bson:"method" json:"method"`
+		URI          string    `bson:"uri" json:"uri"`
+		Status       int       `bson:"status" json:"status"`
+		Latency      int       `bson:"latency" json:"latency"`
+		LatencyHuman string    `bson:"latency_human" json:"latency_human"`
+		BytesIn      int       `bson:"bytes_in" json:"bytes_in"`
+		BytesOut     int       `bson:"bytes_out" json:"bytes_out"`
 		Collection   string    `bson:"-"`
 	}
 
 	//Logrus struct log from Logrus
 	Logrus struct {
-		//Time    time.Time `json:"time" bson:"time"`
-		//Animal  string    `json:"animal" bson:"animal"`
-		//Data       ctxLogger `bson:"data" json:"data"`
-		//ID string `json:"id" bson:"id"`
-		//Req        interface{} `json:"req" bson:"request"`
-		//Res        interface{} `json:"res" bson:"response"`
-		//Message    string      `bson:"-" json:"message"`
-		//Collection string      `bson:"-"`
+		// Time       time.Time   `json:"time" bson:"time"`
+		// Animal     string      `json:"animal" bson:"animal"`
+		// Data       ctxLogger   `bson:"data" json:"data"`
+		// ID         string      `json:"id" bson:"id"`
+		// Req        interface{} `json:"req" bson:"request"`
+		// Res        interface{} `json:"res" bson:"response"`
+		// Message    string      `bson:"-" json:"message"`
+		// Collection string      `bson:"-"`
 		Time       time.Time `bson:"time" json:"time"`
 		Lv         string    `bson:"level" json:"level"`
 		Prefix     string    `bson:"prefix" json:"prefix"`
@@ -123,6 +123,8 @@ func (lg *Logger) Write(logByte []byte) (n int, err error) {
 	*/
 
 	//fmt.Println("lg.Message => ", lg.Message)
+	//fmt.Println("lg.Data => ", lg.Data)
+
 	err = json.NewDecoder(strings.NewReader(lg.Message)).Decode(&lg.Data)
 
 	if err != nil {
@@ -214,6 +216,15 @@ func (lg *Logs) Write(logEcho []byte) (n int, err error) {
 func (lg *Logrus) Write(logByte []byte) (n int, err error) {
 
 	//fmt.Println("logByte => ", logByte)
+	//fmt.Println("&lg => ", &lg)
+	//f := map[string]interface{}{}
+	//var f interface{}
+	//err = json.Unmarshal(logByte, &f)
+	//m := f.(map[string]interface{})
+	//foomap := m["foo"]
+	//fmt.Println("F => ", &f)
+
+	//err = json.Unmarshal(logByte, &f)
 	err = json.Unmarshal(logByte, &lg)
 	if err != nil {
 		log.Printf("error decoding response: %v", err)
@@ -226,7 +237,10 @@ func (lg *Logrus) Write(logByte []byte) (n int, err error) {
 		//return err
 	}
 
-	fmt.Println("Logrus lg => ", lg)
+	//fmt.Println("Logrus lg => ", lg)
+	//fmt.Println("lg Interface Data => ", &lg)
+	//fmt.Println("lg.Message => ", lg.Message)
+	//fmt.Println("lg.Data => ", lg.Data)
 
 	//err = json.NewDecoder(strings.NewReader(lg.Message)).Decode(&lg.Data)
 	err = json.NewDecoder(strings.NewReader(lg.Message)).Decode(&lg.Data)
@@ -237,26 +251,25 @@ func (lg *Logrus) Write(logByte []byte) (n int, err error) {
 	}
 
 	//fmt.Printf("Message: %s Data: %s", lg.Message, lg.Data)
-	fmt.Printf("Response: %s", lg.Data)
+	//fmt.Printf("Response: %s", lg.Data)
+	//fmt.Printf("lg.Collection: %s", lg.Collection)
 
 	//fLogger
-	/*
-		go func() {
-			fLogger.Write(logByte)
-		}()
-	*/
+	go func() {
+		fLogger.Write(logByte)
+	}()
 
 	//MgoClient
-	//go func() {
-	client := mgo.MongoClient().Copy()
-	defer client.Close()
+	go func() {
+		client := mgo.MongoClient().Copy()
+		defer client.Close()
 
-	if err := client.DB("document").C(lg.Collection).Insert(&lg); err != nil {
-		fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
-	} else {
-		//fmt.Printf("\n not err, time:%s\n", time.Now())
-	}
-	//}()
+		if err := client.DB("document").C(lg.Collection).Insert(&lg); err != nil {
+			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
+		} else {
+			//fmt.Printf("\n not err, time:%s\n", time.Now())
+		}
+	}()
 
 	return len(logByte), nil
 }
