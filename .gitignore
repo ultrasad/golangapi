@@ -13,5 +13,7 @@
 
 # Logs of req-res data
 /logs
+/logrus
+/zaplogs
 
 /.history
