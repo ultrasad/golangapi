@@ -12,8 +12,10 @@ import (
 	//"strconv"
 	//"github.com/google/logger"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	//"github.com/labstack/echo"
+	//"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	//logrus "github.com/sirupsen/logrus"
 	//logrus "github.com/sirupsen/logrus"
@@ -131,7 +133,7 @@ func Init(e *echo.Echo) {
 				reqB = string(reqBody)
 			}
 
-			jsonStr := fmt.Sprintf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
+			jsonStr := fmt.Sprintf(`{"time": "%s", "prefix": "API", message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
 
 			fmt.Println("jsonStr => ", jsonStr)
 
@@ -140,32 +142,7 @@ func Init(e *echo.Echo) {
 				panic(err)
 			}
 
-			logrus.WithFields(jsonData).Warning("Test Message by Hanajung !!!")
-
-			/*
-				logrus.WithFields(logrus.Fields{
-					//"type": "Animal",
-					//"name": "Chuche",
-					//"data":   {"id": "", "req": reqB, "res": reqBody},
-					//"data": fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody),
-					//"data":    &middlewares.Logrus{Data: {}},
-					//"message": "{}",
-					//"id":      c.Response().Header().Get(echo.HeaderXRequestID),
-					//"req":     reqB,
-					//"res":     resBody,
-					//"data": &middlewares.CtxLogger{ID: c.Response().Header().Get(echo.HeaderXRequestID), Req: reqB, Res: resBody},
-					//"data": {"id": "1"},
-					//"prefix": "logs prefix",
-					"data": jsonData,
-				}).Warning("A walrus appears")
-			*/
-
-			//logrus.WithFields(jsonData).Warning("Test Message by Hanajung !!!")
-
-			/*log.SetPrefix("api")
-			logger := log.New(os.Stderr, "", 0)
-			logger.SetOutput(&middlewares.Logrus{Collection: "logger"}) //middleware log to mongodb
-			logger.Printf(jsonStr)*/
+			logrus.WithFields(jsonData).Info("API Request")
 		},
 	}))
 

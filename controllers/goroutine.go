@@ -3,7 +3,8 @@ package controllers
 import (
 	"fmt"
 
-	"github.com/labstack/echo"
+	//"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 //CallHelloRoutine is call hello with go routine

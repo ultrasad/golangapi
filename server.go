@@ -4,12 +4,13 @@ import (
 	"fmt"
 	//"net/http"
 	//"golangapi/db/mongo"
-	"golangapi/db/mgo"
 	"golangapi/db/elastics"
+	"golangapi/db/mgo"
 	"golangapi/routers"
 	"strings"
 
-	"github.com/labstack/echo"
+	//"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 )
 
@@ -27,13 +28,13 @@ func main() {
 	//Start MongoDB Connect
 	//Hold Mongo lib, It slower than mgo lib client
 	//mongo.ConnectMongo()
-	
+
 	//Start Mgo Connect
 	mgo.ConnectMgo()
 
 	//Start Elastics Connect
 	elastics.ConnectES()
-	
+
 	// Start Router
 	routers.Init(e)
 

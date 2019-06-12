@@ -257,9 +257,9 @@ func (lg *Logrus) Write(logByte []byte) (n int, err error) {
 	//fmt.Printf("lg.Collection: %s", lg.Collection)
 
 	//fLogger
-	go func() {
+	/*go func() {
 		fLogger.Write(logByte)
-	}()
+	}()*/
 
 	//MgoClient
 	go func() {
