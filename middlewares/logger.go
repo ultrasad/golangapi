@@ -214,15 +214,17 @@ func (lg *Logs) Write(logEcho []byte) (n int, err error) {
 
 //Logrus Log
 func (lg *Logrus) Write(logByte []byte) (n int, err error) {
+	//func (lg *Logrus) Write(logByt interface{}) (n int, err error) {
 
-	//fmt.Println("logByte => ", logByte)
-	//fmt.Println("&lg => ", &lg)
-	//f := map[string]interface{}{}
-	//var f interface{}
-	//err = json.Unmarshal(logByte, &f)
-	//m := f.(map[string]interface{})
-	//foomap := m["foo"]
-	//fmt.Println("F => ", &f)
+	//fmt.Println("log Logrus byte => ", logByte)
+
+	/*
+		var f map[string]interface{}
+		if err := json.Unmarshal(logByte, &f); err != nil {
+			panic(err)
+		}
+		fmt.Println("log all => ", &f)
+	*/
 
 	//err = json.Unmarshal(logByte, &f)
 	err = json.Unmarshal(logByte, &lg)
@@ -237,7 +239,7 @@ func (lg *Logrus) Write(logByte []byte) (n int, err error) {
 		//return err
 	}
 
-	//fmt.Println("Logrus lg => ", lg)
+	fmt.Println("Logrus lg => ", lg)
 	//fmt.Println("lg Interface Data => ", &lg)
 	//fmt.Println("lg.Message => ", lg.Message)
 	//fmt.Println("lg.Data => ", lg.Data)
@@ -266,8 +268,6 @@ func (lg *Logrus) Write(logByte []byte) (n int, err error) {
 
 		if err := client.DB("document").C(lg.Collection).Insert(&lg); err != nil {
 			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
-		} else {
-			//fmt.Printf("\n not err, time:%s\n", time.Now())
 		}
 	}()
 

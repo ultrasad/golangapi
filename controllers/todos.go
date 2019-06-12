@@ -40,7 +40,6 @@ func Create(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, result)
 }
 
-
 // View todo
 func View(c echo.Context) (err error) {
 	id := bson.ObjectIdHex(c.Param("id"))
@@ -51,6 +50,11 @@ func View(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, result)
+
+	//fmt.Println(result)
+	//return c.JSON(http.StatusOK, result)
+	//return c.String(200, `"Test Response String"`)
+	//return c.String(200, "Test Response String")
 }
 
 // Done todo

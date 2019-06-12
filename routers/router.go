@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -61,8 +61,46 @@ func Init(e *echo.Echo) {
 			},
 		}))
 	*/
+
+	/* Uberzap OK, working for logfile and stdout
+	config := uberzap.NewProductionConfig()
+
+	config.OutputPaths = []string{
+		//callback(),
+		"stdout",
+	}
+
+	config.EncoderConfig.LevelKey = "level"
+	//config.EncoderConfig.TimeKey = "timestamp"
+	config.EncoderConfig.TimeKey = ""
+	config.EncoderConfig.CallerKey = "caller"
+	config.EncoderConfig.MessageKey = "message"
+
+	logger, err := config.Build()
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Sync()
+	logger.Info("logger construction succeeded")
+	*/
+
+	//Uber zap logger, 2019-06-11, It work
+	/*
+		zaplog, loggerError := zaplogger.NewLogger("zaplogs", func() string {
+			year, month, day := time.Now().Date()
+			//return "logs/" + strconv.Itoa(year) + "-" + strconv.Itoa(int(month)) + "-" + strconv.Itoa(day) + ".json"
+			return "zaplogs/" + strconv.Itoa(year) + "-" + strconv.Itoa(int(month)) + "-" + strconv.Itoa(day) + ".log"
+		})
+
+		if loggerError != nil {
+			e.Logger.Fatal(loggerError)
+		}
+
+		defer zaplog.Sync()
+		zaplog.Info("First Load")
+	*/
+
 	// Log as JSON instead of the default ASCII formatter.
-	//jsonStr := `{"id": "", "req": "Test Req", "res": "Test Res"}`
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
 	// Output to stdout instead of the default stderr
@@ -78,170 +116,31 @@ func Init(e *echo.Echo) {
 	// Only log the warning severity or above.
 	logrus.SetLevel(logrus.WarnLevel)
 
+	// Caller func report
 	logrus.SetReportCaller(true)
 
-	/*
-		config := uberzap.NewProductionConfig()
-
-		config.OutputPaths = []string{
-			//callback(),
-			"stdout",
-		}
-
-		config.EncoderConfig.LevelKey = "level"
-		//config.EncoderConfig.TimeKey = "timestamp"
-		config.EncoderConfig.TimeKey = ""
-		config.EncoderConfig.CallerKey = "caller"
-		config.EncoderConfig.MessageKey = "message"
-
-		logger, err := config.Build()
-		if err != nil {
-			panic(err)
-		}
-		defer logger.Sync()
-	*/
-	//logger.Info("logger construction succeeded")
+	// e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
+	// 	fmt.Printf("==> %s\n", resBody)
+	// }))
 
 	e.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
 		Handler: func(c echo.Context, reqBody, resBody []byte) {
 
-			//reqB := "\"\""
-			// reqB := `""`
-			//reqB := []byte(``)
-			/*if len(reqBody) < 1 {
-				//reqBody = []byte(`""`)
-				//reqB = reqBody
-				reqBody = []byte(`{}`)
-				//fmt.Println("req empty...")
-				//reqB = []byte(reqBody)
-			}*/
-
 			reqB := `""`
 			if len(reqBody) > 0 {
-				//reqBody = []byte(`""`)
 				reqB = string(reqBody)
-				//reqBody = []byte(`{}`)
-				//fmt.Println("req empty...")
-				//reqB = []byte(reqBody)
 			}
 
-			//fmt.Println("reqBody => ", reqBody)
-			//logger.Info("logger construction succeeded")
+			jsonStr := fmt.Sprintf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
 
-			//fmt.Println("req => ", reqBody)
-			//fmt.Println("res => ", resBody)
+			fmt.Println("jsonStr => ", jsonStr)
 
-			//logger.Printf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-
-			//jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-			//var val []byte = []byte(fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody))
-			//s, _ := strconv.Unquote(string(val))
-
-			//jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-			//jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, "1", "{}", "{}")
-			//jsonStr := fmt.Sprintf(`{"time": "%s", "message": "{}", "level": "info","data": {"id":"%s","req":%s,"res":%s}}`, time.Now().UTC().Format("2006-01-02T15:04:05Z"), c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-			// jsonStr := fmt.Sprintf(`{data": {"id":"%s","request":%s,"response":%s}}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-			//jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-			//byt := []byte(jsonStr)
-			// //fmt.Println(jsonStr)
-
-			jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-			var newData map[string]interface{}
-			if err := json.Unmarshal([]byte(jsonStr), &newData); err != nil {
+			var jsonData map[string]interface{}
+			if err := json.Unmarshal([]byte(jsonStr), &jsonData); err != nil {
 				panic(err)
-			}
-			
-			//
-			fmt.Println("newData", newData)
-
-			jsonData := map[string]interface{}{
-				"message": "{}",
-				"time":    time.Now().UTC().Format("2006-01-02T15:04:05Z"),
-				"data": newData,
 			}
 
 			logrus.WithFields(jsonData).Warning("Test Message by Hanajung !!!")
-
-			/*
-			var reqB map[string]interface{}
-			//var reqB []interface{}
-			if err := json.Unmarshal(reqBody, &reqB); err != nil {
-				panic(err)
-			}
-			//fmt.Println(reqB)
-
-			var resB map[string]interface{} //object
-			//var resB []interface{} //array
-			if err := json.Unmarshal(resBody, &resB); err != nil {
-				panic(err)
-			}
-			//fmt.Println(resB)
-
-			jsonData := map[string]interface{}{
-				"message": "{}",
-				"time":    time.Now().UTC().Format("2006-01-02T15:04:05Z"),
-				"data": map[string]interface{}{
-					"id":  c.Response().Header().Get(echo.HeaderXRequestID),
-					"req": reqB,
-					"res": resB,
-				},
-			}
-			*/
-
-			//jsonData["data"] = jsonStr
-
-			//jsonStr := []byte(`{"id": "1"}`)
-
-			//jsonStr := []string{"1", "2", "3"}
-			/*jsonData := map[string]interface{}{
-				"message": "{}",
-				"data": map[string]interface{}{
-					"id": c.Response().Header().Get(echo.HeaderXRequestID),
-					"req": map[string]interface{}{
-						"test": "xxx",
-					},
-					//"req": reqB,
-					//"req": map[string]interface{}{
-					//	"test": "xxx",
-					//},
-				},
-				//"res": resBody,
-			}*/
-
-			/*jsonData := &middlewares.CtxLogger{
-				ID:  c.Response().Header().Get(echo.HeaderXRequestID),
-				Req: "{test:xxx}",
-				//"res": resBody,
-			}*/
-
-			//Simple Employee JSON object which we will parse
-			/*empJSON := `{
-				"id": 11,
-				"message": "Hanajung",
-				"data": {
-					"id": "Mumbai",
-					"req": "{\"test\":\"xxx\"}",
-					"res": "{}"
-				}
-			}`
-
-			// Declared an empty interface
-			var result map[string]interface{}
-
-			// Unmarshal or Decode the JSON to the interface.
-			json.Unmarshal([]byte(empJSON), &result)*/
-
-			//myData := make(map[string]interface{})
-			//myData["req"] = reqB
-			//myData["res"] = resBody
-			/*
-				jsonbody, err := json.Marshal(myData)
-				if err != nil {
-					// do error check
-					fmt.Println(err)
-					return
-				}
-			*/
 
 			/*
 				logrus.WithFields(logrus.Fields{
@@ -269,45 +168,6 @@ func Init(e *echo.Echo) {
 			logger.Printf(jsonStr)*/
 		},
 	}))
-
-	//Uber zap logger, 2019-06-11, It work
-	/*
-		zaplog, loggerError := zaplogger.NewLogger("zaplogs", func() string {
-			year, month, day := time.Now().Date()
-			//return "logs/" + strconv.Itoa(year) + "-" + strconv.Itoa(int(month)) + "-" + strconv.Itoa(day) + ".json"
-			return "zaplogs/" + strconv.Itoa(year) + "-" + strconv.Itoa(int(month)) + "-" + strconv.Itoa(day) + ".log"
-		})
-
-		if loggerError != nil {
-			e.Logger.Fatal(loggerError)
-		}
-
-		defer zaplog.Sync()
-		zaplog.Info("First Load")
-	*/
-
-	/*
-		config := uberzap.NewProductionConfig()
-
-		config.OutputPaths = []string{
-			//callback(),
-			"stdout",
-		}
-
-		config.EncoderConfig.LevelKey = "level"
-		//config.EncoderConfig.TimeKey = "timestamp"
-		config.EncoderConfig.TimeKey = ""
-		config.EncoderConfig.CallerKey = "caller"
-		config.EncoderConfig.MessageKey = "message"
-
-		logger, err := config.Build()
-		if err != nil {
-			panic(err)
-		}
-		defer logger.Sync()
-
-		logger.Info("logger construction succeeded")
-	*/
 
 	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
 		if username == "hanajung" && password == "secret" {
