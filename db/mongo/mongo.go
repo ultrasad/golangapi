@@ -3,19 +3,20 @@ package mongo
 import (
 	"fmt"
 	"log"
+
 	//"time"
 	"context"
 	//"github.com/globalsign/mgo"
 	"go.mongodb.org/mongo-driver/mongo"
 	//"go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/spf13/viper"
 )
 
 var (
 	mongoDBClient *mongo.Client
-	err   error
+	err           error
 )
 
 // ConnectMongo return Mongo Connection
@@ -30,28 +31,28 @@ func ConnectMongo() *mongo.Client {
 	mongoDBClient, err = mongo.Connect(ctx, clientOptions)
 
 	/*
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = client.Connect(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
-	//db := client.Database(mongoDB)
+		client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = client.Connect(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		//db := client.Database(mongoDB)
 	*/
 
 	if err != nil {
-        log.Fatal(err)
-    }
-	
-    err = mongoDBClient.Ping(context.TODO(), nil)
+		log.Fatal(err)
+	}
 
-    if err != nil {
-        log.Fatal(err)
-    }
+	err = mongoDBClient.Ping(context.TODO(), nil)
 
-    fmt.Println("Connected to MongoDB!")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB!")
 
 	return mongoDBClient
 
@@ -59,27 +60,27 @@ func ConnectMongo() *mongo.Client {
 
 	// create a new context
 	/*
-	ctx := context.Background()
+		ctx := context.Background()
 
-	// create a mongo client
-	client, err := mongo.NewClient(
-		options.Client().ApplyURI("mongodb://localhost:6548/"),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
+		// create a mongo client
+		client, err := mongo.NewClient(
+			options.Client().ApplyURI("mongodb://localhost:6548/"),
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	// connect to mongo
-	if err := client.Connect(ctx); err != nil {
-		log.Fatal(err)
-	}
+		// connect to mongo
+		if err := client.Connect(ctx); err != nil {
+			log.Fatal(err)
+		}
 
-	// disconnects from mongo
-	defer client.Disconnect(ctx)
+		// disconnects from mongo
+		defer client.Disconnect(ctx)
 
-	fmt.Println("Connected to MongoDB!")
+		fmt.Println("Connected to MongoDB!")
 
-	return client
+		return client
 	*/
 }
 

@@ -38,6 +38,8 @@ func Create(c echo.Context) (err error) {
 	//return err
 
 	result, err := models.CreateTodo(&t)
+
+	//fmt.Println("result => : ", result)
 	return c.JSON(http.StatusOK, result)
 }
 

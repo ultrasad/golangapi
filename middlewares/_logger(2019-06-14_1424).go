@@ -68,11 +68,11 @@ type (
 		// Res        interface{} `json:"res" bson:"response"`
 		// Message    string      `bson:"-" json:"message"`
 		// Collection string      `bson:"-"`
-		Time       time.Time `bson:"time" json:"time"`
-		Lv         string    `bson:"level" json:"level"`
-		Prefix     string    `bson:"prefix" json:"prefix"`
-		Message    string    `bson:"-" json:"message"`
-		Msg        string    `bson:"msg" json:"msg"`
+		Time    time.Time `bson:"time" json:"time"`
+		Lv      string    `bson:"level" json:"level"`
+		Prefix  string    `bson:"prefix" json:"prefix"`
+		Message string    `bson:"-" json:"message"`
+		//Msg        string    `bson:"msg" json:"msg"`
 		Data       CtxLogger `bson:"data" json:"data"`
 		Collection string    `bson:"-"`
 	}
@@ -259,8 +259,8 @@ func (lg *Logrus) Write(logByte []byte) (n int, err error) {
 	//fmt.Println("lg.Data => ", lg.Data)
 
 	//var jsonData map[string]interface{}
+	//fmt.Println("lg => ", &lg)
 
-	//fmt.Println("lg => ", &lg.Data)
 	//err = json.NewDecoder(strings.NewReader(lg.Message)).Decode(&lg.Data)
 	err = json.NewDecoder(strings.NewReader(lg.Message)).Decode(&lg.Data)
 	if err != nil {
@@ -268,7 +268,6 @@ func (lg *Logrus) Write(logByte []byte) (n int, err error) {
 		return
 	}
 
-	//fmt.Println("lg => ", &lg.Data)
 	//fmt.Printf("Message: %s Data: %s", lg.Message, lg.Data)
 	//fmt.Printf("Response: %s", lg.Data)
 	//fmt.Printf("lg.Collection: %s", lg.Collection)

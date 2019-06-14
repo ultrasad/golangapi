@@ -1,4 +1,0 @@
-{"time":"2019-05-16T19:19:06+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"POST","uri":"/todos","status":200, "latency":1034006400,"latency_human":"1.0340064s","bytes_in":78,"bytes_out":120}
-{"time":"2019-05-16T19:41:54+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"POST","uri":"/todos","status":200, "latency":1020115900,"latency_human":"1.0201159s","bytes_in":80,"bytes_out":122}
-{"time":"2019-05-16T19:46:23+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"POST","uri":"/todos","status":200, "latency":1020669200,"latency_human":"1.0206692s","bytes_in":82,"bytes_out":124}
-{"time":"2019-05-16T19:49:13+07:00","id":"","remote_ip":"::1","host":"localhost:8083","method":"POST","uri":"/todos","status":200, "latency":1019964800,"latency_human":"1.0199648s","bytes_in":82,"bytes_out":124}

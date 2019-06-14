@@ -1,0 +1,3 @@
+{"level":"info","ts":"2019-06-13T14:14:37.558+0700","caller":"runtime/proc.go:201","msg":"Zap is awesome","key1":"value1"}
+{"key1":"value1","level":"debug","msg":"Starting with logrus","time":"2019-06-13T14:14:37+07:00"}
+{"key1":"value1","level":"info","msg":"Logrus is awesome","time":"2019-06-13T14:14:37+07:00"}
