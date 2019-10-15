@@ -2,15 +2,17 @@ package models
 
 import (
 	mongo "golangapi/db/mgo"
-	
+
 	"github.com/globalsign/mgo/bson"
 )
 
 // Todo is todo
 type Todo struct {
-	ID    bson.ObjectId `json:"id" bson:"_id"`
-	Topic string        `json:"topic" bson:"topic"`
-	Done  bool          `json:"done" bson:"done"`
+	ID     bson.ObjectId `json:"id" bson:"_id"`
+	Topic  string        `json:"topic" bson:"topic"`
+	Done   bool          `json:"done" bson:"done"`
+	Status int           `json:"status" bson:"status"`
+	Fake   bool          `json:"fake" bson:"fake"`
 }
 
 // CreateTodo is all todos
@@ -59,16 +61,18 @@ func FindTodoByID(id bson.ObjectId) (Todo, error) {
 }
 
 // FindAllTodos is all todos
-func FindAllTodos() ([]Todo, error) {
+func FindAllTodos(page int, limit int) ([]Todo, error) {
 
 	var (
 		todos []Todo
 		err   error
 	)
 
+	skips := limit * (page - 1)
+
 	conn := mongo.MongoClient().Copy()
 	defer conn.Close()
 
-	err = conn.DB("document").C("todo").Find(nil).All(&todos)
+	err = conn.DB("document").C("todo").Find(bson.M{}).Limit(limit).Skip(skips).Sort("-_id").All(&todos)
 	return todos, err
 }

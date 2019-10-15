@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"golangapi/models"
 	"net/http"
+	"strconv"
 
 	//"go.mongodb.org/mongo-driver/bson"
 	//"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,7 +16,19 @@ import (
 
 // List todo
 func List(c echo.Context) (err error) {
-	result, err := models.FindAllTodos()
+
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+
+	// Defaults
+	if page == 0 {
+		page = 1
+	}
+	if limit == 0 {
+		limit = 100
+	}
+
+	result, err := models.FindAllTodos(page, limit)
 	if err != nil {
 		return err
 	}

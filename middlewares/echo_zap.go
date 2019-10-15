@@ -70,50 +70,34 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 
 				start := time.Now()
 
-				// err := next(c)
-				// if err != nil {
-				// 	c.Error(err)
-				// }
-
-				reqB := `""`
-				if len(reqBody) > 0 {
-					reqB = string(reqBody)
-				}
-
 				req := c.Request()
 				res := c.Response()
+
+				reqB := `""`
+
+				reqForm := req.Form
+				jsonString, err := json.Marshal(reqForm)
+				if err != nil {
+					fmt.Println("err jsonString  => ", err)
+				}
+
+				if string(jsonString) != "null" {
+					reqB = string(jsonString)
+				} else if len(reqBody) > 0 {
+					reqB = string(reqBody)
+				}
 
 				id := req.Header.Get(echo.HeaderXRequestID)
 				if id == "" {
 					id = res.Header().Get(echo.HeaderXRequestID)
 				}
 
-				// m := echo.Map{}
-				// if err := c.Bind(&m); err != nil {
-				// 	//return err
-				// 	//panic(err)
-				// 	fmt.Println("m err => ", err)
-				// }
-
-				// fmt.Println("m => ", m)
-
-				fmt.Println("resBody => ", resBody)
-
 				jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
-				fmt.Println("jsonStr brfore => ", jsonStr)
 
-				jsonData := echo.Map{}
+				jsonData := make(map[string]interface{})
 				if err := json.Unmarshal([]byte(jsonStr), &jsonData); err != nil {
-					panic(err)
+					fmt.Println("err jsonData  => ", err)
 				}
-
-				// err = json.NewDecoder(strings.NewReader(jsonStr)).Decode(&jsonData)
-				// if err != nil {
-				// 	fmt.Println("\n err json decode >>>", err)
-				// 	return
-				// }
-
-				fmt.Println("jsonStr after => ", jsonData)
 
 				fields := []zapcore.Field{
 					zap.Int("status", res.Status),
@@ -125,7 +109,12 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 					zap.String("remote_ip", c.RealIP()),
 					zap.String("prefix", "API Log"),
 					zap.String("message", "{}"),
+					//zap.String("str", jsonStr),
 					zap.Any("data", jsonData),
+					//zap.Binary("data", []byte(jsonStr)),
+					//zap.String()
+					//zap.ByteString("data", resBody),
+					//zap.Any("data", jsonData),
 				}
 
 				n := res.Status
