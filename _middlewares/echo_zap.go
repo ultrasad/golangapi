@@ -94,6 +94,8 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 
 				jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
 
+				fmt.Println("jsonStr  => ", jsonStr)
+
 				jsonData := make(map[string]interface{})
 				if err := json.Unmarshal([]byte(jsonStr), &jsonData); err != nil {
 					fmt.Println("err jsonData  => ", err)

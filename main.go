@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
+
 	//"net/http"
 	//"golangapi/db/mongo"
 	"golangapi/db/elastics"
 	"golangapi/db/mgo"
-	"golangapi/middlewares"
-	"golangapi/routers"
+
+	//"golangapi/logger"
+	//"golangapi/middlewares"
+	//"golangapi/routers"
 
 	//"golangapi/routers"
 	"golangapi/handler"
@@ -40,7 +43,7 @@ func main() {
 	elastics.ConnectES()
 
 	// Start Router
-	routers.InitRoute(e)
+	//routers.InitRoute(e)
 
 	//Init Route
 	//handler.InitialRoute()
@@ -52,7 +55,38 @@ func main() {
 	handler.InitialLogs(e)
 
 	// Start Logger
-	middlewares.InitLog()
+	//middlewares.InitLog()
+
+	/* fix test log */
+	/*
+		config := logger.Configuration{
+			EnableConsole:     true,
+			ConsoleLevel:      logger.Debug,
+			ConsoleJSONFormat: true,
+			EnableFile:        true,
+			FileLevel:         logger.Info,
+			FileJSONFormat:    true,
+			FileLocation:      "log.log",
+		}
+		err := logger.NewLogger(config, logger.InstanceZapLogger)
+		if err != nil {
+			log.Fatalf("Could not instantiate log %s", err.Error())
+		}
+
+		contextLogger := logger.WithFields(logger.Fields{"key1": "value1"})
+		contextLogger.Debugf("Starting with zap")
+		contextLogger.Infof("Zap is awesome")
+
+		err = logger.NewLogger(config, logger.InstanceLogrusLogger)
+		if err != nil {
+			log.Fatalf("Could not instantiate log %s", err.Error())
+		}
+		contextLogger = logger.WithFields(logger.Fields{"key1": "value1"})
+		contextLogger.Debugf("Starting with logrus")
+
+		contextLogger.Infof("Logrus is awesome")
+	*/
+	/* end fix test log */
 
 	port := fmt.Sprintf(":%v", viper.GetString("port"))
 	e.Logger.Fatal(e.Start(port))

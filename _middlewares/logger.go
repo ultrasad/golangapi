@@ -25,6 +25,7 @@ var (
 	err        error
 	fLogger    *lumberjack.Logger
 	//errLog     *log.Logger
+	//errLog *lumberjack.Logger
 )
 
 type (
@@ -173,6 +174,10 @@ func InitLog() {
 	}
 
 	fmt.Println("init logs..." + fmt.Sprintf("%s%s", time.Now().Format("2006-01-02"), ".log"))
+
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+	//log.SetFlags(0)
+
 }
 
 func (lg *Logger) Write(logByte []byte) (n int, err error) {

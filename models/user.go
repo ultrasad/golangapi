@@ -22,8 +22,15 @@ type BaseModel struct {
 	DeletedAt *time.Time `json:"deleted_at" gorm:"column:deleted_at"`
 }
 
-//User is user
 type (
+
+	//UserModelImpl is user interface
+	UserModelImpl interface {
+		GetUser(id string) User
+		GetUsers() []User
+	}
+
+	//User is user
 	User struct {
 		//BaseModel
 		ID         uint64    `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`

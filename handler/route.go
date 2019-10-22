@@ -38,10 +38,11 @@ func InitialRoute(e *echo.Echo) {
 	e.PUT("/todos/:id", todo.Done)
 	e.DELETE("/todos/:id", todo.Delete)
 
-	fmt.Println("init route...")
+	fmt.Println("InitialRoute...")
 
 	//db with gorm
-	//e.GET("/users/:id", controllers.GetUser)
+	user := UserHandler{}
+	e.GET("/users/:id", user.GetUser)
 
 	//db local config
 	//e.GET("/allusers", controllers.GetAllUser)
