@@ -18,6 +18,10 @@ func (work) Do(v interface{}, err error) {
 	fmt.Println("Do somthing")
 }
 
+type userModel struct {
+	user map[string]*models.User
+}
+
 //CreateUser is create new user
 func CreateUser(c echo.Context) (err error) {
 
@@ -99,4 +103,16 @@ func GetUser(c echo.Context) error {
 	id := c.Param("id")
 	result := models.GetUser(id)
 	return c.JSON(http.StatusOK, result)
+}
+
+func (u *userModel) GetUserMock(c echo.Context) error {
+	id := c.Param("id")
+	user := u.user[id]
+
+	if user == nil {
+		return echo.NewHTTPError(http.StatusNotFound, "user not found")
+	}
+
+	//fmt.Println("user => ", user)
+	return c.JSON(http.StatusOK, user)
 }

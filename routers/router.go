@@ -29,8 +29,8 @@ func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.UTC().Format("2006-01-02T15:04:05Z"))
 }
 
-//Init func
-func Init(e *echo.Echo) {
+//InitRoute init route
+func InitRoute(e *echo.Echo) error {
 
 	//hook := zapcore.AddSync(&middlewares.Logrus{Collection: "logger"})
 	encoderConfig := zapcore.EncoderConfig{
@@ -130,6 +130,10 @@ func Init(e *echo.Echo) {
 	e.PUT("/todos/:id", controllers.Done)
 	e.DELETE("/todos/:id", controllers.Delete)
 
+	//db with gorm
+	e.GET("/users/:id", controllers.GetUser)
+
+	//db local config
 	e.GET("/allusers", controllers.GetAllUser)
 
 	//GoRoutine
@@ -146,6 +150,8 @@ func Init(e *echo.Echo) {
 	//e.Get("/log", ...)
 	//g := e.Group("/group", authenticationMiddleware)
 	//g.Get("/auth", ...)
+
+	return nil
 }
 
 func accessible(c echo.Context) error {

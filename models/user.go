@@ -9,6 +9,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	//move to use gorm
+	//"golangapi/db"
 	"golangapi/db"
 	gormdb "golangapi/db/gorm"
 )
@@ -151,7 +152,7 @@ func GetUserMain() Users {
 //RowX ...
 type (
 	RowX struct {
-		ID    int `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
+		ID    int    `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
 		Name  string `json:"name"`
 		TypeX string `json:"typeX"`
 		Owner string `json:"owner"`

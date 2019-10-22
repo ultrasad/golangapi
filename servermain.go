@@ -1,4 +1,4 @@
-package main
+package servermain
 
 import (
 	"fmt"
@@ -6,17 +6,18 @@ import (
 	//"golangapi/db/mongo"
 	"golangapi/db/elastics"
 	"golangapi/db/mgo"
-	"golangapi/routers"
+	"golangapi/middlewares"
+
+	//"golangapi/routers"
+	"golangapi/handler"
 	"strings"
 
 	//"github.com/labstack/echo"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
-
-	"golangapi/middlewares"
 )
 
-func main() {
+func server() {
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
@@ -38,7 +39,13 @@ func main() {
 	elastics.ConnectES()
 
 	// Start Router
-	routers.Init(e)
+	//routers.InitRoute(e)
+
+	//Init Route
+	handler.InitialRoute(e)
+
+	//Init Logs
+	handler.InitialLogs(e)
 
 	// Start Logger
 	middlewares.InitLog()

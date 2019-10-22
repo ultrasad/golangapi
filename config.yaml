@@ -5,6 +5,11 @@ mongo:
   host: localhost:27017
   db: document
 mysql:
+  user: root
+  pass: 
+  db: test
+  protocal: tcp(127.0.0.1:3306)
+mysql1:
   user: interfacedev
   pass: Interface@APIDev
   db: apishopdev

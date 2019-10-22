@@ -2,11 +2,15 @@ package gorm
 
 import (
 	//mysql driver
-	_ "github.com/go-sql-driver/mysql"
+
+	//_ "github.com/go-sql-driver/mysql"
+
 	"github.com/jinzhu/gorm"
 
 	//mysql dialects
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+
+	"fmt"
 
 	"github.com/spf13/viper"
 )
@@ -26,6 +30,13 @@ func ConnectMySQL() *gorm.DB {
 		DBNAME := "apishopdev"
 	*/
 
+	/* viper.SetConfigType("yaml")
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.ReadInConfig()
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_")) */
+
 	DBMS := "mysql"
 	USER := viper.GetString("mysql.user")
 	PASS := viper.GetString("mysql.pass")
@@ -34,9 +45,11 @@ func ConnectMySQL() *gorm.DB {
 
 	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=True"
 	/*db,err := gorm.Open(DBMS, CONNECT)
-	    if err != nil {
-	        panic(err.Error())
-		}*/
+	if err != nil {
+		panic(err.Error())
+	}*/
+
+	fmt.Println("CONNECT => ", CONNECT)
 
 	if db, err = gorm.Open(DBMS, CONNECT); err != nil {
 		panic(err.Error())

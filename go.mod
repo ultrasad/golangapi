@@ -11,11 +11,12 @@ require (
 	github.com/labstack/echo/v4 v4.1.6
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.3.2
+	github.com/stretchr/testify v1.3.0
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0
 	golang.org/x/crypto v0.0.0-20190611184440-5c40567a22f8 // indirect
-	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
 	golang.org/x/sys v0.0.0-20190610200419-93c9922d18ae // indirect
+	golang.org/x/tools/gopls v0.1.7 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
