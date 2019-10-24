@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	db  *gorm.DB
+	//Db ...
+	Db  *gorm.DB
 	err error
 )
 
@@ -49,24 +50,24 @@ func ConnectMySQL() *gorm.DB {
 		panic(err.Error())
 	}*/
 
-	fmt.Println("CONNECT => ", CONNECT)
+	fmt.Println("MySQL Connect:: ", CONNECT)
 
-	if db, err = gorm.Open(DBMS, CONNECT); err != nil {
+	if Db, err = gorm.Open(DBMS, CONNECT); err != nil {
 		panic(err.Error())
 	}
 
 	//defer db.Close()
 	// make sure connection is available
-	if err = db.DB().Ping(); err != nil {
+	if err = Db.DB().Ping(); err != nil {
 		panic(err)
 	}
 
 	//db.LogMode(true)
 
-	return db
+	return Db
 }
 
 //DBManager return gorm db
 func DBManager() *gorm.DB {
-	return db
+	return Db
 }

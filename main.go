@@ -7,6 +7,7 @@ import (
 	//"golangapi/db/mongo"
 	"golangapi/db/elastics"
 	"golangapi/db/mgo"
+	"golangapi/router"
 
 	//"golangapi/logger"
 	//"golangapi/middlewares"
@@ -19,6 +20,8 @@ import (
 	//"github.com/labstack/echo"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
+
+	gormdb "golangapi/db/gorm"
 )
 
 func main() {
@@ -31,6 +34,9 @@ func main() {
 	viper.SetDefault("port", "8083")
 
 	e := echo.New()
+
+	//start gorm db connect mysql
+	gormdb.ConnectMySQL()
 
 	//Start MongoDB Connect
 	//Hold Mongo lib, It slower than mgo lib client
@@ -49,7 +55,7 @@ func main() {
 	//handler.InitialRoute()
 
 	//Init Route
-	handler.InitialRoute(e)
+	router.InitialRoute(e)
 
 	//Init Logs
 	handler.InitialLogs(e)

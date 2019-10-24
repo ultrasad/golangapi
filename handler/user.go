@@ -13,6 +13,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+/* var (
+	layout = "2006-01-02T15:04:05.000Z"
+	str    = "2014-11-12T11:45:26.371Z"
+	t, err = time.Parse(time.RFC3339, str)
+) */
+
 type (
 	//UserHandler is new user handler
 	UserHandler struct {
@@ -20,7 +26,23 @@ type (
 		//user *models.User
 		UserModel models.UserModelImpl
 	}
+
+	//User ...
+	/* User struct {
+		//BaseModel
+		ID         uint64    `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
+		Prefix     string    `json:"prefix"`
+		Name       string    `json:"name"`
+		Email      string    `json:"email"`
+		CreateDate string    `json:"create_date"`
+		Timestamp  time.Time `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+	} */
 )
+
+//NewHandler ...
+func NewHandler(u models.UserModelImpl) *UserHandler {
+	return &UserHandler{u}
+}
 
 //CreateUser is create new user
 func (h *UserHandler) CreateUser(c echo.Context) (err error) {
@@ -52,10 +74,52 @@ func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, user)
 }
 
-//GetUsers is get user
-func (h *UserHandler) GetUsers(c echo.Context) error {
+//GetUserByID is get user by id
+func (h *UserHandler) GetUserByID(c echo.Context) error {
+	id := c.Param("id")
+	result := h.UserModel.GetUserByID(id)
+	//fmt.Println("json response => ", result)
 
-	result := models.GetUsers()
+	/* user := User{
+		ID:         1,
+		Prefix:     "Mr",
+		Name:       "Hanajung",
+		Email:      "kissing-bear@hotmail.com",
+		CreateDate: "2019-10-24",
+		Timestamp:  t,
+	}
+
+	js, _ := json.Marshal(user)
+	return c.JSONBlob(http.StatusOK, js) */
+
+	return c.JSON(http.StatusOK, result)
+}
+
+//GetAllUser is get all user
+func (h *UserHandler) GetAllUser(c echo.Context) error {
+
+	//result := models.GetUsers()
+	result := h.UserModel.GetAllUser()
+
+	for i, ar := range result {
+		//createDate, _ := time.Parse("2006-01-02T00:00:00Z", ar.CreateDate)
+		createDate, _ := time.Parse("2006-01-02", ar.CreateDate)
+		/* if error != nil {
+			fmt.Println("error => ", error)
+		} */
+
+		fmt.Println("reponse date => ", createDate.Format("2006-01-02"))
+		result[i].CreateDate = createDate.Format("2006-01-02")
+	}
+
+	return c.JSON(http.StatusOK, result)
+	//return c.JSON(200, `[{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}]`)
+}
+
+/* func (h *UserHandler) GetAllUser(c echo.Context) error {
+
+	//result := models.GetUsers()
+	result := h.UserModel.GetAllUser()
 
 	for i, ar := range result.Users {
 		createDate, _ := time.Parse("2006-01-02T00:00:00Z", ar.CreateDate)
@@ -63,20 +127,12 @@ func (h *UserHandler) GetUsers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, result)
-}
+} */
 
-//GetAllUser is get all user list
-func (h *UserHandler) GetAllUser(c echo.Context) error {
+//GetUserDefault is get all user list
+func (h *UserHandler) GetUserDefault(c echo.Context) error {
 	fmt.Println("call get all user")
 	result := models.GetUserDefault()
-	return c.JSON(http.StatusOK, result)
-}
-
-//GetUser is get user by id
-func (h *UserHandler) GetUser(c echo.Context) error {
-	id := c.Param("id")
-	//result := models.GetUser(id)
-	result := h.UserModel.GetUser(id)
 	return c.JSON(http.StatusOK, result)
 }
 

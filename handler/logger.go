@@ -168,6 +168,10 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 
 				jsonData := make(map[string]interface{})
 				if err := json.Unmarshal([]byte(jsonStr), &jsonData); err != nil {
+					//log reponse
+
+					log.Warn("Request:Reponse error - " + jsonStr)
+
 					fmt.Println("err jsonData  => ", err)
 				}
 

@@ -26,8 +26,8 @@ type (
 
 	//UserModelImpl is user interface
 	UserModelImpl interface {
-		GetUser(id string) User
-		GetUsers() []User
+		GetUserByID(id string) User
+		GetAllUser() []User
 	}
 
 	//User is user
@@ -39,19 +39,42 @@ type (
 		Email      string    `json:"email"`
 		CreateDate string    `json:"create_date"`
 		Timestamp  time.Time `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
-		//CreatedAt *time.Time `json:"created_at"`
+	}
+
+	//DBFunc gorm return error
+	DBFunc func(tx *gorm.DB) error // func type which accept *gorm.DB and return error
+
+	//Users is user
+	/* Users struct {
+		Users []User
+	} */
+
+	//UserModel ...
+	UserModel struct {
+		db *gorm.DB
 	}
 )
 
+/*
 //Users is user
 type Users struct {
 	Users []User
 }
+*/
 
+/*
 //DBFunc gorm return error
 type (
 	DBFunc func(tx *gorm.DB) error // func type which accept *gorm.DB and return error
 )
+*/
+
+//NewUserModel ...
+func NewUserModel(db *gorm.DB) *UserModel {
+	return &UserModel{
+		db: db,
+	}
+}
 
 // WithinTransaction ...
 // accept DBFunc as parameter
@@ -101,15 +124,22 @@ func CreateUser(v interface{}) error {
 	})
 }
 
-//GetUser is get user
-func GetUser(id string) User {
-	db := gormdb.ConnectMySQL()
+//GetUserByID is get user
+func (h *UserModel) GetUserByID(id string) User {
+
+	/* fmt.Println("get user...")
+	user := User{}
+	return user */
+
+	//db := gormdb.ConnectMySQL()
+	db := h.db
+	defer db.Close()
 	user := User{}
 
 	//err := db.Debug().Where("name = ?", "Hanajung").Order("id desc, name").Find(&user).Error
 	err := db.Debug().Order("id desc, name").Last(&user, id).Error
 	if err != nil {
-		fmt.Print(err)
+		fmt.Print("Connect DB err => ", err)
 	}
 
 	//result.Users = user
@@ -118,9 +148,30 @@ func GetUser(id string) User {
 	return user
 }
 
-//GetUsers is get all user
-func GetUsers() Users {
-	db := gormdb.ConnectMySQL()
+//GetAllUser is get all user
+func (h *UserModel) GetAllUser() []User {
+	//db := gormdb.ConnectMySQL()
+	db := h.db
+	defer db.Close()
+	//result := Users{}
+	user := []User{}
+
+	//err := db.Debug().Where("name = ?", "Hanajung").Order("id desc, name").Find(&user).Error
+	err := db.Debug().Order("id desc, name").Find(&user).Error
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	//result.Users = user
+	//fmt.Println("User => ", user)
+
+	return user
+}
+
+/* func (h *UserModel) GetAllUser() Users {
+	//db := gormdb.ConnectMySQL()
+	db := h.db
+	defer db.Close()
 	result := Users{}
 	user := []User{}
 
@@ -134,11 +185,32 @@ func GetUsers() Users {
 	//fmt.Println("User => ", user)
 
 	return result
-}
+} */
 
 //GetUserMain is get user
-func GetUserMain() Users {
+func (h *UserModel) GetUserMain() []User {
+	//db := gormdb.ConnectMySQL()
+	db := h.db
+	defer db.Close()
+	user := []User{}
+
+	//err := db.Debug().Where("name = ?", "Hanajung").Order("id desc, name").Find(&user).Error
+	err := db.Debug().Order("id desc, name").Find(&user).Error
+	if err != nil {
+		fmt.Print("error db debug => ", err)
+	}
+
+	for _, ar := range user {
+		fmt.Println(ar.ID)
+		user = append(user, ar)
+	}
+
+	return user
+}
+
+/* func GetUserMain() Users {
 	db := gormdb.ConnectMySQL()
+	defer db.Close()
 	result := Users{}
 	user := []User{}
 
@@ -154,7 +226,7 @@ func GetUserMain() Users {
 	}
 
 	return result
-}
+} */
 
 //RowX ...
 type (

@@ -8,11 +8,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func accessible(c echo.Context) error {
+type (
+	//AuthHandler is auth struct
+	AuthHandler struct{}
+)
+
+//Accessible ...
+func (h *AuthHandler) Accessible(c echo.Context) error {
 	return c.String(http.StatusOK, "Accessible")
 }
 
-func restricted(c echo.Context) error {
+//Restricted ...
+func (h *AuthHandler) Restricted(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	name := claims["name"].(string)
@@ -23,7 +30,8 @@ func restricted(c echo.Context) error {
 	})
 }
 
-func login(c echo.Context) error {
+//Login ...
+func (h *AuthHandler) Login(c echo.Context) error {
 	username := c.FormValue("username")
 	//email := c.FormValue("email")
 	password := c.FormValue("password")
