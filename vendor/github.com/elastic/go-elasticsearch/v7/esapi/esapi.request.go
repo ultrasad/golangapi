@@ -1,3 +1,7 @@
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
 package esapi
 
 import (
@@ -47,6 +51,8 @@ func newRequest(method, path string, body io.Reader) (*http.Request, error) {
 		case *strings.Reader:
 			r.Body = ioutil.NopCloser(body)
 			r.ContentLength = int64(b.Len())
+		default:
+			r.Body = ioutil.NopCloser(body)
 		}
 	}
 

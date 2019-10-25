@@ -24,10 +24,15 @@ type BaseModel struct {
 
 type (
 
-	//UserModelImpl is user interface
-	UserModelImpl interface {
+	//UserStore is user interface
+	UserStore interface {
 		GetUserByID(id string) User
 		GetAllUser() []User
+	}
+
+	//UserModel ...
+	UserModel struct {
+		db *gorm.DB
 	}
 
 	//User is user
@@ -48,11 +53,6 @@ type (
 	/* Users struct {
 		Users []User
 	} */
-
-	//UserModel ...
-	UserModel struct {
-		db *gorm.DB
-	}
 )
 
 /*
@@ -133,17 +133,17 @@ func (h *UserModel) GetUserByID(id string) User {
 
 	//db := gormdb.ConnectMySQL()
 	db := h.db
-	defer db.Close()
+	//defer db.Close()
 	user := User{}
 
 	//err := db.Debug().Where("name = ?", "Hanajung").Order("id desc, name").Find(&user).Error
 	err := db.Debug().Order("id desc, name").Last(&user, id).Error
 	if err != nil {
-		fmt.Print("Connect DB err => ", err)
+		fmt.Print("Connect DB Error::", err)
 	}
 
 	//result.Users = user
-	fmt.Println("user => ", user)
+	//fmt.Println("user => ", user)
 
 	return user
 }
@@ -152,7 +152,7 @@ func (h *UserModel) GetUserByID(id string) User {
 func (h *UserModel) GetAllUser() []User {
 	//db := gormdb.ConnectMySQL()
 	db := h.db
-	defer db.Close()
+	//defer db.Close()
 	//result := Users{}
 	user := []User{}
 
@@ -191,7 +191,7 @@ func (h *UserModel) GetAllUser() []User {
 func (h *UserModel) GetUserMain() []User {
 	//db := gormdb.ConnectMySQL()
 	db := h.db
-	defer db.Close()
+	//defer db.Close()
 	user := []User{}
 
 	//err := db.Debug().Where("name = ?", "Hanajung").Order("id desc, name").Find(&user).Error

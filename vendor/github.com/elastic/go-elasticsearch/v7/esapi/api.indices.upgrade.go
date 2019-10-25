@@ -1,9 +1,14 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -22,7 +27,7 @@ func newIndicesUpgradeFunc(t Transport) IndicesUpgrade {
 
 // IndicesUpgrade the _upgrade API is no longer useful and will be removed.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-upgrade.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-upgrade.html.
 //
 type IndicesUpgrade func(o ...func(*IndicesUpgradeRequest)) (*Response, error)
 
@@ -41,6 +46,8 @@ type IndicesUpgradeRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -110,6 +117,18 @@ func (r IndicesUpgradeRequest) Do(ctx context.Context, transport Transport) (*Re
 			q.Set(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -215,5 +234,18 @@ func (f IndicesUpgrade) WithErrorTrace() func(*IndicesUpgradeRequest) {
 func (f IndicesUpgrade) WithFilterPath(v ...string) func(*IndicesUpgradeRequest) {
 	return func(r *IndicesUpgradeRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f IndicesUpgrade) WithHeader(h map[string]string) func(*IndicesUpgradeRequest) {
+	return func(r *IndicesUpgradeRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

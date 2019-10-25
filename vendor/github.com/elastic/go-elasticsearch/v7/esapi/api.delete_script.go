@@ -1,16 +1,21 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 )
 
 func newDeleteScriptFunc(t Transport) DeleteScript {
 	return func(id string, o ...func(*DeleteScriptRequest)) (*Response, error) {
-		var r = DeleteScriptRequest{DocumentID: id}
+		var r = DeleteScriptRequest{ScriptID: id}
 		for _, f := range o {
 			f(&r)
 		}
@@ -22,14 +27,14 @@ func newDeleteScriptFunc(t Transport) DeleteScript {
 
 // DeleteScript deletes a script.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-scripting.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-scripting.html.
 //
 type DeleteScript func(id string, o ...func(*DeleteScriptRequest)) (*Response, error)
 
 // DeleteScriptRequest configures the Delete Script API request.
 //
 type DeleteScriptRequest struct {
-	DocumentID string
+	ScriptID string
 
 	MasterTimeout time.Duration
 	Timeout       time.Duration
@@ -38,6 +43,8 @@ type DeleteScriptRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -53,11 +60,11 @@ func (r DeleteScriptRequest) Do(ctx context.Context, transport Transport) (*Resp
 
 	method = "DELETE"
 
-	path.Grow(1 + len("_scripts") + 1 + len(r.DocumentID))
+	path.Grow(1 + len("_scripts") + 1 + len(r.ScriptID))
 	path.WriteString("/")
 	path.WriteString("_scripts")
 	path.WriteString("/")
-	path.WriteString(r.DocumentID)
+	path.WriteString(r.ScriptID)
 
 	params = make(map[string]string)
 
@@ -93,6 +100,18 @@ func (r DeleteScriptRequest) Do(ctx context.Context, transport Transport) (*Resp
 			q.Set(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -166,5 +185,18 @@ func (f DeleteScript) WithErrorTrace() func(*DeleteScriptRequest) {
 func (f DeleteScript) WithFilterPath(v ...string) func(*DeleteScriptRequest) {
 	return func(r *DeleteScriptRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f DeleteScript) WithHeader(h map[string]string) func(*DeleteScriptRequest) {
+	return func(r *DeleteScriptRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

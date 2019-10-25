@@ -14,6 +14,7 @@ The client major versions correspond to the compatible Elasticsearch major versi
 When using Go modules, include the version in the import path, and specify either an explicit version or a branch:
 
     require github.com/elastic/go-elasticsearch/v7 7.x
+    require github.com/elastic/go-elasticsearch/v7 7.0.0
 
 It's possible to use multiple versions of the client in a single project:
 
@@ -36,17 +37,13 @@ The `master` branch of the client is compatible with the current `master` branch
 
 ## Installation
 
-Install the package with `go get`:
+Add the package to your `go.mod` file:
 
-    go get -u github.com/elastic/go-elasticsearch@master
-
-Or, add the package to your `go.mod` file:
-
-    require github.com/elastic/go-elasticsearch/v7 master
+    require github.com/elastic/go-elasticsearch/v7 7.x
 
 Or, clone the repository:
 
-    git clone https://github.com/elastic/go-elasticsearch.git && cd go-elasticsearch
+    git clone --branch 7.x https://github.com/elastic/go-elasticsearch.git $GOPATH/src/github.com/elastic/go-elasticsearch
 
 A complete example:
 
@@ -56,7 +53,7 @@ mkdir my-elasticsearch-app && cd my-elasticsearch-app
 cat > go.mod <<-END
   module my-elasticsearch-app
 
-  require github.com/elastic/go-elasticsearch/v7 master
+  require github.com/elastic/go-elasticsearch/v7 7.x
 END
 
 cat > main.go <<-END
@@ -70,6 +67,7 @@ cat > main.go <<-END
 
   func main() {
     es, _ := elasticsearch.NewDefaultClient()
+    log.Println(elasticsearch.Version)
     log.Println(es.Info())
   }
 END
@@ -154,6 +152,7 @@ The following example demonstrates a more complex usage. It fetches the Elastics
 package main
 
 import (
+  "bytes"
   "context"
   "encoding/json"
   "log"
@@ -209,11 +208,17 @@ func main() {
     go func(i int, title string) {
       defer wg.Done()
 
-      // Set up the request object directly.
+      // Build the request body.
+      var b strings.Builder
+      b.WriteString(`{"title" : "`)
+      b.WriteString(title)
+      b.WriteString(`"}`)
+
+      // Set up the request object.
       req := esapi.IndexRequest{
         Index:      "test",
         DocumentID: strconv.Itoa(i + 1),
-        Body:       strings.NewReader(`{"title" : "` + title + `"}`),
+        Body:       strings.NewReader(b.String()),
         Refresh:    "true",
       }
 
@@ -244,23 +249,36 @@ func main() {
 
   // 3. Search for the indexed documents
   //
-  // Use the helper methods of the client.
+  // Build the request body.
+  var buf bytes.Buffer
+  query := map[string]interface{}{
+    "query": map[string]interface{}{
+      "match": map[string]interface{}{
+        "title": "test",
+      },
+    },
+  }
+  if err := json.NewEncoder(&buf).Encode(query); err != nil {
+    log.Fatalf("Error encoding query: %s", err)
+  }
+
+  // Perform the search request.
   res, err = es.Search(
     es.Search.WithContext(context.Background()),
     es.Search.WithIndex("test"),
-    es.Search.WithBody(strings.NewReader(`{"query" : { "match" : { "title" : "test" } }}`)),
+    es.Search.WithBody(&buf),
     es.Search.WithTrackTotalHits(true),
     es.Search.WithPretty(),
   )
   if err != nil {
-    log.Fatalf("ERROR: %s", err)
+    log.Fatalf("Error getting response: %s", err)
   }
   defer res.Body.Close()
 
   if res.IsError() {
     var e map[string]interface{}
     if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-      log.Fatalf("error parsing the response body: %s", err)
+      log.Fatalf("Error parsing the response body: %s", err)
     } else {
       // Print the response status and error information.
       log.Fatalf("[%s] %s: %s",
@@ -305,6 +323,13 @@ As you see in the example above, the `esapi` package allows to call the Elastics
 [package documentation](https://godoc.org/github.com/elastic/go-elasticsearch/esapi).
 
 The `estransport` package handles the transfer of data to and from Elasticsearch. At the moment, the implementation is really minimal: it only round-robins across the configured cluster endpoints. In future, more features — retrying failed requests, ignoring certain status codes, auto-discovering nodes in the cluster, and so on — will be added.
+
+<!-- ----------------------------------------------------------------------------------------------- -->
+
+## Helpers
+
+The `esutil` package provides convenience helpers for working with the client. At the moment, it provides the
+`esutil.JSONReader()` helper function.
 
 <!-- ----------------------------------------------------------------------------------------------- -->
 

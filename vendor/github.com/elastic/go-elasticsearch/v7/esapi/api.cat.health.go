@@ -1,9 +1,14 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -23,7 +28,7 @@ func newCatHealthFunc(t Transport) CatHealth {
 
 // CatHealth returns a concise representation of the cluster health.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/cat-health.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/cat-health.html.
 //
 type CatHealth func(o ...func(*CatHealthRequest)) (*Response, error)
 
@@ -36,6 +41,7 @@ type CatHealthRequest struct {
 	Local         *bool
 	MasterTimeout time.Duration
 	S             []string
+	Time          string
 	Ts            *bool
 	V             *bool
 
@@ -43,6 +49,8 @@ type CatHealthRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -87,6 +95,10 @@ func (r CatHealthRequest) Do(ctx context.Context, transport Transport) (*Respons
 		params["s"] = strings.Join(r.S, ",")
 	}
 
+	if r.Time != "" {
+		params["time"] = r.Time
+	}
+
 	if r.Ts != nil {
 		params["ts"] = strconv.FormatBool(*r.Ts)
 	}
@@ -119,6 +131,18 @@ func (r CatHealthRequest) Do(ctx context.Context, transport Transport) (*Respons
 			q.Set(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -195,6 +219,14 @@ func (f CatHealth) WithS(v ...string) func(*CatHealthRequest) {
 	}
 }
 
+// WithTime - the unit in which to display time values.
+//
+func (f CatHealth) WithTime(v string) func(*CatHealthRequest) {
+	return func(r *CatHealthRequest) {
+		r.Time = v
+	}
+}
+
 // WithTs - set to false to disable timestamping.
 //
 func (f CatHealth) WithTs(v bool) func(*CatHealthRequest) {
@@ -240,5 +272,18 @@ func (f CatHealth) WithErrorTrace() func(*CatHealthRequest) {
 func (f CatHealth) WithFilterPath(v ...string) func(*CatHealthRequest) {
 	return func(r *CatHealthRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f CatHealth) WithHeader(h map[string]string) func(*CatHealthRequest) {
+	return func(r *CatHealthRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

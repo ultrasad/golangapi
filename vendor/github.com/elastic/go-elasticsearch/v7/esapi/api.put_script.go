@@ -1,17 +1,22 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
 	"io"
+	"net/http"
 	"strings"
 	"time"
 )
 
 func newPutScriptFunc(t Transport) PutScript {
 	return func(id string, body io.Reader, o ...func(*PutScriptRequest)) (*Response, error) {
-		var r = PutScriptRequest{DocumentID: id, Body: body}
+		var r = PutScriptRequest{ScriptID: id, Body: body}
 		for _, f := range o {
 			f(&r)
 		}
@@ -23,14 +28,14 @@ func newPutScriptFunc(t Transport) PutScript {
 
 // PutScript creates or updates a script.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-scripting.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-scripting.html.
 //
 type PutScript func(id string, body io.Reader, o ...func(*PutScriptRequest)) (*Response, error)
 
 // PutScriptRequest configures the Put Script API request.
 //
 type PutScriptRequest struct {
-	DocumentID string
+	ScriptID string
 
 	Body io.Reader
 
@@ -43,6 +48,8 @@ type PutScriptRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -58,11 +65,11 @@ func (r PutScriptRequest) Do(ctx context.Context, transport Transport) (*Respons
 
 	method = "PUT"
 
-	path.Grow(1 + len("_scripts") + 1 + len(r.DocumentID) + 1 + len(r.ScriptContext))
+	path.Grow(1 + len("_scripts") + 1 + len(r.ScriptID) + 1 + len(r.ScriptContext))
 	path.WriteString("/")
 	path.WriteString("_scripts")
 	path.WriteString("/")
-	path.WriteString(r.DocumentID)
+	path.WriteString(r.ScriptID)
 	if r.ScriptContext != "" {
 		path.WriteString("/")
 		path.WriteString(r.ScriptContext)
@@ -110,6 +117,18 @@ func (r PutScriptRequest) Do(ctx context.Context, transport Transport) (*Respons
 
 	if r.Body != nil {
 		req.Header[headerContentType] = headerContentTypeJSON
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -191,5 +210,18 @@ func (f PutScript) WithErrorTrace() func(*PutScriptRequest) {
 func (f PutScript) WithFilterPath(v ...string) func(*PutScriptRequest) {
 	return func(r *PutScriptRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f PutScript) WithHeader(h map[string]string) func(*PutScriptRequest) {
+	return func(r *PutScriptRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

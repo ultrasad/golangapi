@@ -17,7 +17,7 @@ func InitialRouteUser(e *echo.Echo) {
 	//h := handler.NewHandler(models.NewUserModel(db))
 	//user := handler.NewHandler(models.NewUserModel(db))
 
-	user := handler.NewHandler(models.NewUserModel(gormdb.DBManager()))
+	user := handler.NewUserHandler(models.NewUserModel(gormdb.DBManager()))
 
 	e.GET("/users/:id", user.GetUserByID)
 

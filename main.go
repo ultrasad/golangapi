@@ -7,6 +7,7 @@ import (
 	//"golangapi/db/mongo"
 	"golangapi/db/elastics"
 	"golangapi/db/mgo"
+	"golangapi/db/mongo"
 	"golangapi/router"
 
 	//"golangapi/logger"
@@ -35,12 +36,20 @@ func main() {
 
 	e := echo.New()
 
+	/* e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		//AllowOrigins: []string{"https://labstack.com", "https://labstack.net"},
+		//AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		//Skipper:      DefaultSkipper,
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+	})) */
+
 	//start gorm db connect mysql
 	gormdb.ConnectMySQL()
 
 	//Start MongoDB Connect
 	//Hold Mongo lib, It slower than mgo lib client
-	//mongo.ConnectMongo()
+	mongo.ConnectMongo()
 
 	//Start Mgo Connect
 	mgo.ConnectMgo()

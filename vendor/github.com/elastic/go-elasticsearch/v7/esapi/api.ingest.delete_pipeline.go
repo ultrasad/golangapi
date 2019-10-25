@@ -1,16 +1,21 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 )
 
 func newIngestDeletePipelineFunc(t Transport) IngestDeletePipeline {
 	return func(id string, o ...func(*IngestDeletePipelineRequest)) (*Response, error) {
-		var r = IngestDeletePipelineRequest{DocumentID: id}
+		var r = IngestDeletePipelineRequest{PipelineID: id}
 		for _, f := range o {
 			f(&r)
 		}
@@ -22,14 +27,14 @@ func newIngestDeletePipelineFunc(t Transport) IngestDeletePipeline {
 
 // IngestDeletePipeline deletes a pipeline.
 //
-// See full documentation at https://www.elastic.co/guide/en/elasticsearch/plugins/master/ingest.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-pipeline-api.html.
 //
 type IngestDeletePipeline func(id string, o ...func(*IngestDeletePipelineRequest)) (*Response, error)
 
-// IngestDeletePipelineRequest configures the Ingest  Delete Pipeline API request.
+// IngestDeletePipelineRequest configures the Ingest Delete Pipeline API request.
 //
 type IngestDeletePipelineRequest struct {
-	DocumentID string
+	PipelineID string
 
 	MasterTimeout time.Duration
 	Timeout       time.Duration
@@ -38,6 +43,8 @@ type IngestDeletePipelineRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -53,13 +60,13 @@ func (r IngestDeletePipelineRequest) Do(ctx context.Context, transport Transport
 
 	method = "DELETE"
 
-	path.Grow(1 + len("_ingest") + 1 + len("pipeline") + 1 + len(r.DocumentID))
+	path.Grow(1 + len("_ingest") + 1 + len("pipeline") + 1 + len(r.PipelineID))
 	path.WriteString("/")
 	path.WriteString("_ingest")
 	path.WriteString("/")
 	path.WriteString("pipeline")
 	path.WriteString("/")
-	path.WriteString(r.DocumentID)
+	path.WriteString(r.PipelineID)
 
 	params = make(map[string]string)
 
@@ -95,6 +102,18 @@ func (r IngestDeletePipelineRequest) Do(ctx context.Context, transport Transport
 			q.Set(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -168,5 +187,18 @@ func (f IngestDeletePipeline) WithErrorTrace() func(*IngestDeletePipelineRequest
 func (f IngestDeletePipeline) WithFilterPath(v ...string) func(*IngestDeletePipelineRequest) {
 	return func(r *IngestDeletePipelineRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f IngestDeletePipeline) WithHeader(h map[string]string) func(*IngestDeletePipelineRequest) {
+	return func(r *IngestDeletePipelineRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

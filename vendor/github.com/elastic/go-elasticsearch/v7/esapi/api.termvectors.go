@@ -1,10 +1,15 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
 	"io"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -23,7 +28,7 @@ func newTermvectorsFunc(t Transport) Termvectors {
 
 // Termvectors returns information and statistics about terms in the fields of a particular document.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/docs-termvectors.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/docs-termvectors.html.
 //
 type Termvectors func(index string, o ...func(*TermvectorsRequest)) (*Response, error)
 
@@ -39,7 +44,6 @@ type TermvectorsRequest struct {
 	Fields          []string
 	FieldStatistics *bool
 	Offsets         *bool
-	Parent          string
 	Payloads        *bool
 	Positions       *bool
 	Preference      string
@@ -53,6 +57,8 @@ type TermvectorsRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -98,10 +104,6 @@ func (r TermvectorsRequest) Do(ctx context.Context, transport Transport) (*Respo
 
 	if r.Offsets != nil {
 		params["offsets"] = strconv.FormatBool(*r.Offsets)
-	}
-
-	if r.Parent != "" {
-		params["parent"] = r.Parent
 	}
 
 	if r.Payloads != nil {
@@ -164,6 +166,18 @@ func (r TermvectorsRequest) Do(ctx context.Context, transport Transport) (*Respo
 
 	if r.Body != nil {
 		req.Header[headerContentType] = headerContentTypeJSON
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -237,14 +251,6 @@ func (f Termvectors) WithFieldStatistics(v bool) func(*TermvectorsRequest) {
 func (f Termvectors) WithOffsets(v bool) func(*TermvectorsRequest) {
 	return func(r *TermvectorsRequest) {
 		r.Offsets = &v
-	}
-}
-
-// WithParent - parent ID of documents..
-//
-func (f Termvectors) WithParent(v string) func(*TermvectorsRequest) {
-	return func(r *TermvectorsRequest) {
-		r.Parent = v
 	}
 }
 
@@ -341,5 +347,18 @@ func (f Termvectors) WithErrorTrace() func(*TermvectorsRequest) {
 func (f Termvectors) WithFilterPath(v ...string) func(*TermvectorsRequest) {
 	return func(r *TermvectorsRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f Termvectors) WithHeader(h map[string]string) func(*TermvectorsRequest) {
+	return func(r *TermvectorsRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

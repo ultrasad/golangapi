@@ -1,9 +1,14 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -23,7 +28,7 @@ func newDeleteFunc(t Transport) Delete {
 
 // Delete removes a document from the index.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/docs-delete.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/docs-delete.html.
 //
 type Delete func(index string, id string, o ...func(*DeleteRequest)) (*Response, error)
 
@@ -36,7 +41,6 @@ type DeleteRequest struct {
 
 	IfPrimaryTerm       *int
 	IfSeqNo             *int
-	Parent              string
 	Refresh             string
 	Routing             string
 	Timeout             time.Duration
@@ -48,6 +52,8 @@ type DeleteRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -85,10 +91,6 @@ func (r DeleteRequest) Do(ctx context.Context, transport Transport) (*Response, 
 
 	if r.IfSeqNo != nil {
 		params["if_seq_no"] = strconv.FormatInt(int64(*r.IfSeqNo), 10)
-	}
-
-	if r.Parent != "" {
-		params["parent"] = r.Parent
 	}
 
 	if r.Refresh != "" {
@@ -141,6 +143,18 @@ func (r DeleteRequest) Do(ctx context.Context, transport Transport) (*Response, 
 		req.URL.RawQuery = q.Encode()
 	}
 
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
+	}
+
 	if ctx != nil {
 		req = req.WithContext(ctx)
 	}
@@ -188,14 +202,6 @@ func (f Delete) WithIfPrimaryTerm(v int) func(*DeleteRequest) {
 func (f Delete) WithIfSeqNo(v int) func(*DeleteRequest) {
 	return func(r *DeleteRequest) {
 		r.IfSeqNo = &v
-	}
-}
-
-// WithParent - ID of parent document.
-//
-func (f Delete) WithParent(v string) func(*DeleteRequest) {
-	return func(r *DeleteRequest) {
-		r.Parent = v
 	}
 }
 
@@ -276,5 +282,18 @@ func (f Delete) WithErrorTrace() func(*DeleteRequest) {
 func (f Delete) WithFilterPath(v ...string) func(*DeleteRequest) {
 	return func(r *DeleteRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f Delete) WithHeader(h map[string]string) func(*DeleteRequest) {
+	return func(r *DeleteRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

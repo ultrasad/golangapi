@@ -1,10 +1,15 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
 	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -24,7 +29,7 @@ func newSearchTemplateFunc(t Transport) SearchTemplate {
 
 // SearchTemplate allows to use the Mustache language to pre-render a search definition.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/current/search-template.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/current/search-template.html.
 //
 type SearchTemplate func(body io.Reader, o ...func(*SearchTemplateRequest)) (*Response, error)
 
@@ -36,24 +41,25 @@ type SearchTemplateRequest struct {
 
 	Body io.Reader
 
-	AllowNoIndices        *bool
-	CcsMinimizeRoundtrips *bool
-	ExpandWildcards       string
-	Explain               *bool
-	IgnoreThrottled       *bool
-	IgnoreUnavailable     *bool
-	Preference            string
-	Profile               *bool
-	RestTotalHitsAsInt    *bool
-	Routing               []string
-	Scroll                time.Duration
-	SearchType            string
-	TypedKeys             *bool
+	AllowNoIndices     *bool
+	ExpandWildcards    string
+	Explain            *bool
+	IgnoreThrottled    *bool
+	IgnoreUnavailable  *bool
+	Preference         string
+	Profile            *bool
+	RestTotalHitsAsInt *bool
+	Routing            []string
+	Scroll             time.Duration
+	SearchType         string
+	TypedKeys          *bool
 
 	Pretty     bool
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -87,10 +93,6 @@ func (r SearchTemplateRequest) Do(ctx context.Context, transport Transport) (*Re
 
 	if r.AllowNoIndices != nil {
 		params["allow_no_indices"] = strconv.FormatBool(*r.AllowNoIndices)
-	}
-
-	if r.CcsMinimizeRoundtrips != nil {
-		params["ccs_minimize_roundtrips"] = strconv.FormatBool(*r.CcsMinimizeRoundtrips)
 	}
 
 	if r.ExpandWildcards != "" {
@@ -167,6 +169,18 @@ func (r SearchTemplateRequest) Do(ctx context.Context, transport Transport) (*Re
 		req.Header[headerContentType] = headerContentTypeJSON
 	}
 
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
+	}
+
 	if ctx != nil {
 		req = req.WithContext(ctx)
 	}
@@ -214,14 +228,6 @@ func (f SearchTemplate) WithDocumentType(v ...string) func(*SearchTemplateReques
 func (f SearchTemplate) WithAllowNoIndices(v bool) func(*SearchTemplateRequest) {
 	return func(r *SearchTemplateRequest) {
 		r.AllowNoIndices = &v
-	}
-}
-
-// WithCcsMinimizeRoundtrips - indicates whether network round-trips should be minimized as part of cross-cluster search requests execution.
-//
-func (f SearchTemplate) WithCcsMinimizeRoundtrips(v bool) func(*SearchTemplateRequest) {
-	return func(r *SearchTemplateRequest) {
-		r.CcsMinimizeRoundtrips = &v
 	}
 }
 
@@ -342,5 +348,18 @@ func (f SearchTemplate) WithErrorTrace() func(*SearchTemplateRequest) {
 func (f SearchTemplate) WithFilterPath(v ...string) func(*SearchTemplateRequest) {
 	return func(r *SearchTemplateRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f SearchTemplate) WithHeader(h map[string]string) func(*SearchTemplateRequest) {
+	return func(r *SearchTemplateRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

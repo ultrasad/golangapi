@@ -6,17 +6,89 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/labstack/echo/v4"
 )
 
-//TodoHandler is Todo
-type TodoHandler struct {
-	Todo *models.Todo
+type (
+	//TodoHandler is Todo
+	TodoHandler struct {
+		TodoModel models.TodoStore
+	}
+)
+
+//NewTodoHandler is new todo
+func NewTodoHandler(u models.TodoStore) *TodoHandler {
+	return &TodoHandler{u}
 }
 
-// List todo
-func (h *TodoHandler) List(c echo.Context) (err error) {
+//GetTodo reponse todo by id, (//FindTodo)
+func (h *TodoHandler) GetTodo(c echo.Context) error {
+	id := c.Param("id")
+	result, err := h.TodoModel.GetTodo(id)
+	if err != nil {
+		fmt.Println("GetTodo Error: ", err)
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+//CreateTodo create new todo
+func (h *TodoHandler) CreateTodo(c echo.Context) error {
+	todo := models.Todo{}
+
+	if err := c.Bind(&todo); err != nil {
+		fmt.Println("BindTodo Error, ", err)
+		//return c.NoContent(http.StatusBadRequest)
+		//return json response
+	}
+
+	result, err := h.TodoModel.CreateTodo(&todo)
+	if err != nil {
+		fmt.Println("CreateTodo Error: ", err)
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+// UpdateTodo is update todo by id
+func (h *TodoHandler) UpdateTodo(c echo.Context) (err error) {
+	//id := bson.ObjectIdHex(c.Param("id"))
+	id := c.Param("id")
+	//todo := models.Todo{}
+	var todo models.Todo
+	//todo := new(models.Todo)
+
+	todo, err = h.TodoModel.GetTodo(id)
+	if err != nil {
+		fmt.Println("GetTodo Error: ", err)
+		//return c.NoContent(http.StatusNotFound)
+		//return json response
+	}
+
+	fmt.Println("before bind data controller => id, data => ", id, &todo)
+
+	/* if err := c.Bind(todo); err != nil {
+		fmt.Println("BindTodo Error, ", err)
+		//return c.NoContent(http.StatusBadRequest)
+		//return json response
+	} */
+
+	if err := c.Bind(&todo); err != nil {
+		return err
+	}
+
+	todo.Done = true
+	fmt.Printf("new todo update done: %+v\n", &todo)
+
+	result, err := h.TodoModel.UpdateTodo(id, &todo)
+	fmt.Println("after bind data controller => id, data => ", id, &todo)
+
+	//return c.JSON(http.StatusOK, map[string]string{"result": "success"})
+	return c.JSON(http.StatusOK, result)
+}
+
+//GetAllTodo response all todo with limit, perpage
+func (h *TodoHandler) GetAllTodo(c echo.Context) error {
 
 	page, _ := strconv.Atoi(c.QueryParam("page"))
 	limit, _ := strconv.Atoi(c.QueryParam("limit"))
@@ -29,79 +101,10 @@ func (h *TodoHandler) List(c echo.Context) (err error) {
 		limit = 100
 	}
 
-	result, err := models.FindAllTodos(page, limit)
+	result, err := h.TodoModel.GetAllTodo(int64(page), int64(limit))
 	if err != nil {
-		return err
+		fmt.Println("GetAllTodo Error: ", err)
 	}
 
 	return c.JSON(http.StatusOK, result)
-}
-
-// Create todo
-func (h *TodoHandler) Create(c echo.Context) (err error) {
-	id := bson.NewObjectId()
-	var t models.Todo
-	if err := c.Bind(&t); err != nil {
-		return err
-	}
-
-	t.ID = id
-	t.Done = false
-
-	result, err := models.CreateTodo(&t)
-	return c.JSON(http.StatusOK, result)
-}
-
-// View todo
-func (h *TodoHandler) View(c echo.Context) (err error) {
-	id := bson.ObjectIdHex(c.Param("id"))
-	//id := c.Param("id")
-	result, err := models.FindTodoByID(id)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, result)
-}
-
-// Done todo
-func (h *TodoHandler) Done(c echo.Context) (err error) {
-	id := bson.ObjectIdHex(c.Param("id"))
-	//id := c.Param("id")
-	var t models.Todo
-
-	t, err = models.FindTodoByID(id)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("before bind data controller => id, data => ", id, &t)
-
-	if err := c.Bind(&t); err != nil {
-		return err
-	}
-
-	t.Done = true
-	fmt.Printf("new todo update done: %+v\n", &t)
-
-	result, err := models.UpdateTodo(id, &t)
-	fmt.Println("after bind data controller => id, data => ", id, &t)
-
-	//return c.JSON(http.StatusOK, map[string]string{"result": "success"})
-	return c.JSON(http.StatusOK, result)
-}
-
-//Delete todo
-func (h *TodoHandler) Delete(c echo.Context) (err error) {
-	id := bson.ObjectIdHex(c.Param("id"))
-	//id := c.Param("id")
-	err = models.DeleteTodo(id)
-	if err != nil {
-		return err
-	}
-
-	c.JSON(http.StatusOK, echo.Map{
-		"result": "success",
-	})
-	return nil
 }

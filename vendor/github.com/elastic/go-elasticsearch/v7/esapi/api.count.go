@@ -1,10 +1,15 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
 	"io"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -23,7 +28,7 @@ func newCountFunc(t Transport) Count {
 
 // Count returns number of documents matching a query.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/search-count.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/search-count.html.
 //
 type Count func(o ...func(*CountRequest)) (*Response, error)
 
@@ -54,6 +59,8 @@ type CountRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -167,6 +174,18 @@ func (r CountRequest) Do(ctx context.Context, transport Transport) (*Response, e
 
 	if r.Body != nil {
 		req.Header[headerContentType] = headerContentTypeJSON
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -360,5 +379,18 @@ func (f Count) WithErrorTrace() func(*CountRequest) {
 func (f Count) WithFilterPath(v ...string) func(*CountRequest) {
 	return func(r *CountRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f Count) WithHeader(h map[string]string) func(*CountRequest) {
+	return func(r *CountRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

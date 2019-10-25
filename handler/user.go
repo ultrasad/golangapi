@@ -24,7 +24,7 @@ type (
 	UserHandler struct {
 		//DB *gorm.DB
 		//user *models.User
-		UserModel models.UserModelImpl
+		UserModel models.UserStore
 	}
 
 	//User ...
@@ -39,8 +39,8 @@ type (
 	} */
 )
 
-//NewHandler ...
-func NewHandler(u models.UserModelImpl) *UserHandler {
+//NewUserHandler is user
+func NewUserHandler(u models.UserStore) *UserHandler {
 	return &UserHandler{u}
 }
 

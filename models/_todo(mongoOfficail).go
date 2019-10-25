@@ -95,8 +95,6 @@ func CreateTodo(t *Todo) (*Todo, error) {
 	t.ID = primitive.NewObjectID()
 	res, err := client.Database("document").Collection("todo").InsertOne(ctx, &t)
 	
-
-	
 	//t.ID = bson.NewObjectId()
 	//err = client.DB("document").C("todo").Insert(&t)
 

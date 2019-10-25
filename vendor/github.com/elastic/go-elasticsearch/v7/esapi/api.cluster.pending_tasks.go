@@ -1,9 +1,14 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -24,11 +29,11 @@ func newClusterPendingTasksFunc(t Transport) ClusterPendingTasks {
 // ClusterPendingTasks returns a list of any cluster-level changes (e.g. create index, update mapping,
 // allocate or fail shard) which have not yet been executed.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-pending.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-pending.html.
 //
 type ClusterPendingTasks func(o ...func(*ClusterPendingTasksRequest)) (*Response, error)
 
-// ClusterPendingTasksRequest configures the Cluster  Pending Tasks API request.
+// ClusterPendingTasksRequest configures the Cluster Pending Tasks API request.
 //
 type ClusterPendingTasksRequest struct {
 	Local         *bool
@@ -38,6 +43,8 @@ type ClusterPendingTasksRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -90,6 +97,18 @@ func (r ClusterPendingTasksRequest) Do(ctx context.Context, transport Transport)
 			q.Set(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -163,5 +182,18 @@ func (f ClusterPendingTasks) WithErrorTrace() func(*ClusterPendingTasksRequest) 
 func (f ClusterPendingTasks) WithFilterPath(v ...string) func(*ClusterPendingTasksRequest) {
 	return func(r *ClusterPendingTasksRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f ClusterPendingTasks) WithHeader(h map[string]string) func(*ClusterPendingTasksRequest) {
+	return func(r *ClusterPendingTasksRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

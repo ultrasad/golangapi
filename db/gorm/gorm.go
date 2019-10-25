@@ -50,19 +50,20 @@ func ConnectMySQL() *gorm.DB {
 		panic(err.Error())
 	}*/
 
-	fmt.Println("MySQL Connect:: ", CONNECT)
+	//fmt.Println("MySQL Connect:: ", CONNECT)
 
 	if Db, err = gorm.Open(DBMS, CONNECT); err != nil {
 		panic(err.Error())
 	}
 
-	//defer db.Close()
+	//defer Db.Close()
 	// make sure connection is available
 	if err = Db.DB().Ping(); err != nil {
 		panic(err)
 	}
 
 	//db.LogMode(true)
+	fmt.Println("Connected to MySQL!")
 
 	return Db
 }

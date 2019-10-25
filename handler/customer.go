@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"strings"
 
+	"golangapi/models"
+
 	//"github.com/labstack/echo"
 	"github.com/labstack/echo/v4"
-
-	"golangapi/models"
 
 	elastics "golangapi/db/elastics"
 )

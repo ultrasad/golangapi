@@ -1,9 +1,14 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -23,7 +28,7 @@ func newClusterHealthFunc(t Transport) ClusterHealth {
 
 // ClusterHealth returns basic information about the health of the cluster.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-health.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-health.html.
 //
 type ClusterHealth func(o ...func(*ClusterHealthRequest)) (*Response, error)
 
@@ -32,6 +37,7 @@ type ClusterHealth func(o ...func(*ClusterHealthRequest)) (*Response, error)
 type ClusterHealthRequest struct {
 	Index []string
 
+	ExpandWildcards             string
 	Level                       string
 	Local                       *bool
 	MasterTimeout               time.Duration
@@ -47,6 +53,8 @@ type ClusterHealthRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -73,6 +81,10 @@ func (r ClusterHealthRequest) Do(ctx context.Context, transport Transport) (*Res
 	}
 
 	params = make(map[string]string)
+
+	if r.ExpandWildcards != "" {
+		params["expand_wildcards"] = r.ExpandWildcards
+	}
 
 	if r.Level != "" {
 		params["level"] = r.Level
@@ -140,6 +152,18 @@ func (r ClusterHealthRequest) Do(ctx context.Context, transport Transport) (*Res
 		req.URL.RawQuery = q.Encode()
 	}
 
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
+	}
+
 	if ctx != nil {
 		req = req.WithContext(ctx)
 	}
@@ -171,6 +195,14 @@ func (f ClusterHealth) WithContext(v context.Context) func(*ClusterHealthRequest
 func (f ClusterHealth) WithIndex(v ...string) func(*ClusterHealthRequest) {
 	return func(r *ClusterHealthRequest) {
 		r.Index = v
+	}
+}
+
+// WithExpandWildcards - whether to expand wildcard expression to concrete indices that are open, closed or both..
+//
+func (f ClusterHealth) WithExpandWildcards(v string) func(*ClusterHealthRequest) {
+	return func(r *ClusterHealthRequest) {
+		r.ExpandWildcards = v
 	}
 }
 
@@ -283,5 +315,18 @@ func (f ClusterHealth) WithErrorTrace() func(*ClusterHealthRequest) {
 func (f ClusterHealth) WithFilterPath(v ...string) func(*ClusterHealthRequest) {
 	return func(r *ClusterHealthRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f ClusterHealth) WithHeader(h map[string]string) func(*ClusterHealthRequest) {
+	return func(r *ClusterHealthRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

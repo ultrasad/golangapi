@@ -1,6 +1,11 @@
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
 package elasticsearch
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -27,6 +32,9 @@ type Config struct {
 	Addresses []string // A list of Elasticsearch nodes to use.
 	Username  string   // Username for HTTP Basic Authentication.
 	Password  string   // Password for HTTP Basic Authentication.
+
+	CloudID string // Endpoint for the Elastic Service (https://elastic.co/cloud).
+	APIKey  string // Base64-encoded token for authorization; if set, overrides username and password.
 
 	Transport http.RoundTripper  // The HTTP transport object.
 	Logger    estransport.Logger // The logger object.
@@ -61,13 +69,36 @@ func NewDefaultClient() (*Client, error) {
 // environment variable.
 //
 func NewClient(cfg Config) (*Client, error) {
+	var addrs []string
+
 	envAddrs := addrsFromEnvironment()
 
 	if len(envAddrs) > 0 && len(cfg.Addresses) > 0 {
 		return nil, errors.New("cannot create client: both ELASTICSEARCH_URL and Addresses are set")
 	}
 
-	addrs := append(envAddrs, cfg.Addresses...)
+	if len(envAddrs) > 0 && cfg.CloudID != "" {
+		return nil, errors.New("cannot create client: both ELASTICSEARCH_URL and CloudID are set")
+	}
+
+	if len(cfg.Addresses) > 0 && cfg.CloudID != "" {
+		return nil, errors.New("cannot create client: both Adresses and CloudID are set")
+	}
+
+	if cfg.CloudID != "" {
+		cloudAddrs, err := addrFromCloudID(cfg.CloudID)
+		if err != nil {
+			return nil, fmt.Errorf("cannot create client: cannot parse CloudID: %s", err)
+		}
+		addrs = append(addrs, cloudAddrs)
+	} else {
+		if len(envAddrs) > 0 {
+			addrs = append(envAddrs, envAddrs...)
+		}
+		if len(cfg.Addresses) > 0 {
+			addrs = append(envAddrs, cfg.Addresses...)
+		}
+	}
 
 	urls, err := addrsToURLs(addrs)
 	if err != nil {
@@ -83,6 +114,7 @@ func NewClient(cfg Config) (*Client, error) {
 		URLs:     urls,
 		Username: cfg.Username,
 		Password: cfg.Password,
+		APIKey:   cfg.APIKey,
 
 		Transport: cfg.Transport,
 		Logger:    cfg.Logger,
@@ -126,4 +158,25 @@ func addrsToURLs(addrs []string) ([]*url.URL, error) {
 		urls = append(urls, u)
 	}
 	return urls, nil
+}
+
+// addrFromCloudID extracts the Elasticsearch URL from CloudID.
+// See: https://www.elastic.co/guide/en/cloud/current/ec-cloud-id.html
+//
+func addrFromCloudID(input string) (string, error) {
+	var (
+		port   = 9243
+		scheme = "https://"
+	)
+
+	values := strings.Split(input, ":")
+	if len(values) != 2 {
+		return "", fmt.Errorf("unexpected format: %q", input)
+	}
+	data, err := base64.StdEncoding.DecodeString(values[1])
+	if err != nil {
+		return "", err
+	}
+	parts := strings.Split(string(data), "$")
+	return fmt.Sprintf("%s%s.%s:%d", scheme, parts[1], parts[0], port), nil
 }

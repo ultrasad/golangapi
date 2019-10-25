@@ -101,7 +101,7 @@ func TestGetUser(t *testing.T) {
 	//var h = &UserHandler{}
 
 	u := &UsersModelStub{}
-	h := NewHandler(u)
+	h := NewUserHandler(u)
 
 	var userJSON = fmt.Sprintf(`{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}%s`, "\n")
 
@@ -141,7 +141,7 @@ func TestGetAllUser(t *testing.T) {
 	c.SetPath("/allusers")
 
 	u := &UsersModelStub{}
-	h := NewHandler(u)
+	h := NewUserHandler(u)
 
 	//var userJSON = `{"users":[{"id":100,"name":"foo"}]}`
 	var userJSON = fmt.Sprintf(`[{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}]%s`, "\n")

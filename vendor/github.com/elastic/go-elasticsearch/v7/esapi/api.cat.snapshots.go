@@ -1,9 +1,14 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -23,7 +28,7 @@ func newCatSnapshotsFunc(t Transport) CatSnapshots {
 
 // CatSnapshots returns all snapshots in a specific repository.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/cat-snapshots.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/cat-snapshots.html.
 //
 type CatSnapshots func(o ...func(*CatSnapshotsRequest)) (*Response, error)
 
@@ -38,12 +43,15 @@ type CatSnapshotsRequest struct {
 	IgnoreUnavailable *bool
 	MasterTimeout     time.Duration
 	S                 []string
+	Time              string
 	V                 *bool
 
 	Pretty     bool
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -95,6 +103,10 @@ func (r CatSnapshotsRequest) Do(ctx context.Context, transport Transport) (*Resp
 		params["s"] = strings.Join(r.S, ",")
 	}
 
+	if r.Time != "" {
+		params["time"] = r.Time
+	}
+
 	if r.V != nil {
 		params["v"] = strconv.FormatBool(*r.V)
 	}
@@ -123,6 +135,18 @@ func (r CatSnapshotsRequest) Do(ctx context.Context, transport Transport) (*Resp
 			q.Set(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -207,6 +231,14 @@ func (f CatSnapshots) WithS(v ...string) func(*CatSnapshotsRequest) {
 	}
 }
 
+// WithTime - the unit in which to display time values.
+//
+func (f CatSnapshots) WithTime(v string) func(*CatSnapshotsRequest) {
+	return func(r *CatSnapshotsRequest) {
+		r.Time = v
+	}
+}
+
 // WithV - verbose mode. display column headers.
 //
 func (f CatSnapshots) WithV(v bool) func(*CatSnapshotsRequest) {
@@ -244,5 +276,18 @@ func (f CatSnapshots) WithErrorTrace() func(*CatSnapshotsRequest) {
 func (f CatSnapshots) WithFilterPath(v ...string) func(*CatSnapshotsRequest) {
 	return func(r *CatSnapshotsRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f CatSnapshots) WithHeader(h map[string]string) func(*CatSnapshotsRequest) {
+	return func(r *CatSnapshotsRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

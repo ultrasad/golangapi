@@ -1,9 +1,14 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -22,14 +27,14 @@ func newIngestGetPipelineFunc(t Transport) IngestGetPipeline {
 
 // IngestGetPipeline returns a pipeline.
 //
-// See full documentation at https://www.elastic.co/guide/en/elasticsearch/plugins/master/ingest.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/get-pipeline-api.html.
 //
 type IngestGetPipeline func(o ...func(*IngestGetPipelineRequest)) (*Response, error)
 
-// IngestGetPipelineRequest configures the Ingest  Get Pipeline API request.
+// IngestGetPipelineRequest configures the Ingest Get Pipeline API request.
 //
 type IngestGetPipelineRequest struct {
-	DocumentID string
+	PipelineID string
 
 	MasterTimeout time.Duration
 
@@ -37,6 +42,8 @@ type IngestGetPipelineRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -52,14 +59,14 @@ func (r IngestGetPipelineRequest) Do(ctx context.Context, transport Transport) (
 
 	method = "GET"
 
-	path.Grow(1 + len("_ingest") + 1 + len("pipeline") + 1 + len(r.DocumentID))
+	path.Grow(1 + len("_ingest") + 1 + len("pipeline") + 1 + len(r.PipelineID))
 	path.WriteString("/")
 	path.WriteString("_ingest")
 	path.WriteString("/")
 	path.WriteString("pipeline")
-	if r.DocumentID != "" {
+	if r.PipelineID != "" {
 		path.WriteString("/")
-		path.WriteString(r.DocumentID)
+		path.WriteString(r.PipelineID)
 	}
 
 	params = make(map[string]string)
@@ -94,6 +101,18 @@ func (r IngestGetPipelineRequest) Do(ctx context.Context, transport Transport) (
 		req.URL.RawQuery = q.Encode()
 	}
 
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
+	}
+
 	if ctx != nil {
 		req = req.WithContext(ctx)
 	}
@@ -120,11 +139,11 @@ func (f IngestGetPipeline) WithContext(v context.Context) func(*IngestGetPipelin
 	}
 }
 
-// WithDocumentID - comma separated list of pipeline ids. wildcards supported.
+// WithPipelineID - comma separated list of pipeline ids. wildcards supported.
 //
-func (f IngestGetPipeline) WithDocumentID(v string) func(*IngestGetPipelineRequest) {
+func (f IngestGetPipeline) WithPipelineID(v string) func(*IngestGetPipelineRequest) {
 	return func(r *IngestGetPipelineRequest) {
-		r.DocumentID = v
+		r.PipelineID = v
 	}
 }
 
@@ -165,5 +184,18 @@ func (f IngestGetPipeline) WithErrorTrace() func(*IngestGetPipelineRequest) {
 func (f IngestGetPipeline) WithFilterPath(v ...string) func(*IngestGetPipelineRequest) {
 	return func(r *IngestGetPipelineRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f IngestGetPipeline) WithHeader(h map[string]string) func(*IngestGetPipelineRequest) {
+	return func(r *IngestGetPipelineRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

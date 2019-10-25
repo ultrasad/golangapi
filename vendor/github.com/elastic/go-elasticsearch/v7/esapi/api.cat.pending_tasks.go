@@ -1,9 +1,14 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -23,11 +28,11 @@ func newCatPendingTasksFunc(t Transport) CatPendingTasks {
 
 // CatPendingTasks returns a concise representation of the cluster pending tasks.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/cat-pending-tasks.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/cat-pending-tasks.html.
 //
 type CatPendingTasks func(o ...func(*CatPendingTasksRequest)) (*Response, error)
 
-// CatPendingTasksRequest configures the Cat  Pending Tasks API request.
+// CatPendingTasksRequest configures the Cat Pending Tasks API request.
 //
 type CatPendingTasksRequest struct {
 	Format        string
@@ -36,12 +41,15 @@ type CatPendingTasksRequest struct {
 	Local         *bool
 	MasterTimeout time.Duration
 	S             []string
+	Time          string
 	V             *bool
 
 	Pretty     bool
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -86,6 +94,10 @@ func (r CatPendingTasksRequest) Do(ctx context.Context, transport Transport) (*R
 		params["s"] = strings.Join(r.S, ",")
 	}
 
+	if r.Time != "" {
+		params["time"] = r.Time
+	}
+
 	if r.V != nil {
 		params["v"] = strconv.FormatBool(*r.V)
 	}
@@ -114,6 +126,18 @@ func (r CatPendingTasksRequest) Do(ctx context.Context, transport Transport) (*R
 			q.Set(k, v)
 		}
 		req.URL.RawQuery = q.Encode()
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -190,6 +214,14 @@ func (f CatPendingTasks) WithS(v ...string) func(*CatPendingTasksRequest) {
 	}
 }
 
+// WithTime - the unit in which to display time values.
+//
+func (f CatPendingTasks) WithTime(v string) func(*CatPendingTasksRequest) {
+	return func(r *CatPendingTasksRequest) {
+		r.Time = v
+	}
+}
+
 // WithV - verbose mode. display column headers.
 //
 func (f CatPendingTasks) WithV(v bool) func(*CatPendingTasksRequest) {
@@ -227,5 +259,18 @@ func (f CatPendingTasks) WithErrorTrace() func(*CatPendingTasksRequest) {
 func (f CatPendingTasks) WithFilterPath(v ...string) func(*CatPendingTasksRequest) {
 	return func(r *CatPendingTasksRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f CatPendingTasks) WithHeader(h map[string]string) func(*CatPendingTasksRequest) {
+	return func(r *CatPendingTasksRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

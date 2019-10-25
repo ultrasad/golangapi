@@ -1,10 +1,15 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
 	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -24,7 +29,7 @@ func newUpdateFunc(t Transport) Update {
 
 // Update updates a document with a script or partial document.
 //
-// See full documentation at http://www.elastic.co/guide/en/elasticsearch/reference/master/docs-update.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/master/docs-update.html.
 //
 type Update func(index string, id string, body io.Reader, o ...func(*UpdateRequest)) (*Response, error)
 
@@ -40,7 +45,6 @@ type UpdateRequest struct {
 	IfPrimaryTerm       *int
 	IfSeqNo             *int
 	Lang                string
-	Parent              string
 	Refresh             string
 	RetryOnConflict     *int
 	Routing             string
@@ -54,6 +58,8 @@ type UpdateRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -97,10 +103,6 @@ func (r UpdateRequest) Do(ctx context.Context, transport Transport) (*Response, 
 
 	if r.Lang != "" {
 		params["lang"] = r.Lang
-	}
-
-	if r.Parent != "" {
-		params["parent"] = r.Parent
 	}
 
 	if r.Refresh != "" {
@@ -165,6 +167,18 @@ func (r UpdateRequest) Do(ctx context.Context, transport Transport) (*Response, 
 		req.Header[headerContentType] = headerContentTypeJSON
 	}
 
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
+	}
+
 	if ctx != nil {
 		req = req.WithContext(ctx)
 	}
@@ -220,14 +234,6 @@ func (f Update) WithIfSeqNo(v int) func(*UpdateRequest) {
 func (f Update) WithLang(v string) func(*UpdateRequest) {
 	return func(r *UpdateRequest) {
 		r.Lang = v
-	}
-}
-
-// WithParent - ID of the parent document. is is only used for routing and when for the upsert request.
-//
-func (f Update) WithParent(v string) func(*UpdateRequest) {
-	return func(r *UpdateRequest) {
-		r.Parent = v
 	}
 }
 
@@ -324,5 +330,18 @@ func (f Update) WithErrorTrace() func(*UpdateRequest) {
 func (f Update) WithFilterPath(v ...string) func(*UpdateRequest) {
 	return func(r *UpdateRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f Update) WithHeader(h map[string]string) func(*UpdateRequest) {
+	return func(r *UpdateRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }

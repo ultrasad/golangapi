@@ -1,10 +1,15 @@
-// Code generated from specification version 7.0.0: DO NOT EDIT
+// Licensed to Elasticsearch B.V. under one or more agreements.
+// Elasticsearch B.V. licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information.
+
+// Code generated from specification version 7.4.1: DO NOT EDIT
 
 package esapi
 
 import (
 	"context"
 	"io"
+	"net/http"
 	"strings"
 )
 
@@ -22,14 +27,14 @@ func newRenderSearchTemplateFunc(t Transport) RenderSearchTemplate {
 
 // RenderSearchTemplate allows to use the Mustache language to pre-render a search definition.
 //
-// See full documentation at http://www.elasticsearch.org/guide/en/elasticsearch/reference/master/search-template.html.
+// See full documentation at https://www.elastic.co/guide/en/elasticsearch/reference/current/search-template.html#_validating_templates.
 //
 type RenderSearchTemplate func(o ...func(*RenderSearchTemplateRequest)) (*Response, error)
 
 // RenderSearchTemplateRequest configures the Render Search Template API request.
 //
 type RenderSearchTemplateRequest struct {
-	DocumentID string
+	TemplateID string
 
 	Body io.Reader
 
@@ -37,6 +42,8 @@ type RenderSearchTemplateRequest struct {
 	Human      bool
 	ErrorTrace bool
 	FilterPath []string
+
+	Header http.Header
 
 	ctx context.Context
 }
@@ -52,14 +59,14 @@ func (r RenderSearchTemplateRequest) Do(ctx context.Context, transport Transport
 
 	method = "GET"
 
-	path.Grow(1 + len("_render") + 1 + len("template") + 1 + len(r.DocumentID))
+	path.Grow(1 + len("_render") + 1 + len("template") + 1 + len(r.TemplateID))
 	path.WriteString("/")
 	path.WriteString("_render")
 	path.WriteString("/")
 	path.WriteString("template")
-	if r.DocumentID != "" {
+	if r.TemplateID != "" {
 		path.WriteString("/")
-		path.WriteString(r.DocumentID)
+		path.WriteString(r.TemplateID)
 	}
 
 	params = make(map[string]string)
@@ -92,6 +99,18 @@ func (r RenderSearchTemplateRequest) Do(ctx context.Context, transport Transport
 
 	if r.Body != nil {
 		req.Header[headerContentType] = headerContentTypeJSON
+	}
+
+	if len(r.Header) > 0 {
+		if len(req.Header) == 0 {
+			req.Header = r.Header
+		} else {
+			for k, vv := range r.Header {
+				for _, v := range vv {
+					req.Header.Add(k, v)
+				}
+			}
+		}
 	}
 
 	if ctx != nil {
@@ -128,11 +147,11 @@ func (f RenderSearchTemplate) WithBody(v io.Reader) func(*RenderSearchTemplateRe
 	}
 }
 
-// WithDocumentID - the ID of the stored search template.
+// WithTemplateID - the ID of the stored search template.
 //
-func (f RenderSearchTemplate) WithDocumentID(v string) func(*RenderSearchTemplateRequest) {
+func (f RenderSearchTemplate) WithTemplateID(v string) func(*RenderSearchTemplateRequest) {
 	return func(r *RenderSearchTemplateRequest) {
-		r.DocumentID = v
+		r.TemplateID = v
 	}
 }
 
@@ -165,5 +184,18 @@ func (f RenderSearchTemplate) WithErrorTrace() func(*RenderSearchTemplateRequest
 func (f RenderSearchTemplate) WithFilterPath(v ...string) func(*RenderSearchTemplateRequest) {
 	return func(r *RenderSearchTemplateRequest) {
 		r.FilterPath = v
+	}
+}
+
+// WithHeader adds the headers to the HTTP request.
+//
+func (f RenderSearchTemplate) WithHeader(h map[string]string) func(*RenderSearchTemplateRequest) {
+	return func(r *RenderSearchTemplateRequest) {
+		if r.Header == nil {
+			r.Header = make(http.Header)
+		}
+		for k, v := range h {
+			r.Header.Add(k, v)
+		}
 	}
 }
