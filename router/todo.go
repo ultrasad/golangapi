@@ -18,8 +18,22 @@ func InitialRouteTodo(e *echo.Echo) {
 	//r.GET("/todos", todo.List)
 
 	e.GET("/todos", todo.GetAllTodo)
-	e.GET("/todos/:id", todo.GetTodo)
 	e.POST("/todos", todo.CreateTodo)
-	e.PUT("/todos/:id", todo.UpdateTodo) //update, done
+	e.GET("/todos/:todoID", todo.GetTodo)
+	e.PUT("/todos/:todoID", todo.UpdateTodo) //update, done
+
+	//e.PUT("/todos/:id", todo.UpdateTodo) //update, done
+
+	/* e.PUT("/check/:version", func(c echo.Context) error {
+		version := c.Param("version")
+		//return c.String(http.StatusOK, version)
+		return c.JSON(http.StatusOK, version)
+	}) */
+
+	/* e.PUT("/todos/:idx", func(c echo.Context) error {
+		idx := c.Param("idx")
+		fmt.Println("idx => ", idx)
+		return c.String(http.StatusOK, idx)
+	}) */
 	//e.DELETE("/todos/:id", todo.DeleteTodo)
 }
