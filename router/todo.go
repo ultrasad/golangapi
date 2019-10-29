@@ -15,12 +15,13 @@ func InitialRouteTodo(e *echo.Echo) {
 
 	r := e.Group("/api")
 	r.Use(middleware.JWT([]byte("secret")))
-	//r.GET("/todos", todo.List)
+	r.GET("/todos", todo.GetAllTodo)
 
 	e.GET("/todos", todo.GetAllTodo)
 	e.POST("/todos", todo.CreateTodo)
 	e.GET("/todos/:todoID", todo.GetTodo)
 	e.PUT("/todos/:todoID", todo.UpdateTodo) //update, done
+	e.DELETE("/todos/:todoID", todo.DeleteTodo)
 
 	//e.PUT("/todos/:id", todo.UpdateTodo) //update, done
 

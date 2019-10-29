@@ -6,7 +6,9 @@ import (
 	//"net/http"
 	//"golangapi/db/mongo"
 	"golangapi/db/elastics"
-	"golangapi/db/mgo"
+	"golangapi/handler"
+
+	//"golangapi/db/mgo"
 	"golangapi/db/mongo"
 	"golangapi/router"
 
@@ -15,11 +17,12 @@ import (
 	//"golangapi/routers"
 
 	//"golangapi/routers"
-	"golangapi/handler"
+
 	"strings"
 
 	//"github.com/labstack/echo"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
 
 	gormdb "golangapi/db/gorm"
@@ -35,6 +38,8 @@ func main() {
 	viper.SetDefault("port", "8083")
 
 	e := echo.New()
+
+	e.Use(middleware.RequestID())
 
 	/* e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		//AllowOrigins: []string{"https://labstack.com", "https://labstack.net"},
@@ -52,7 +57,7 @@ func main() {
 	mongo.ConnectMongo()
 
 	//Start Mgo Connect
-	mgo.ConnectMgo()
+	//mgo.ConnectMgo()
 
 	//Start Elastics Connect
 	elastics.ConnectES()

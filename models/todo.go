@@ -20,6 +20,7 @@ type (
 		GetAllTodo(page int64, limit int64) ([]*Todo, error)
 		CreateTodo(*Todo) (*Todo, error)
 		UpdateTodo(id string, todo *Todo) (*Todo, error)
+		DeleteTodo(id string) (delete int64, err error)
 	}
 
 	//TodoModel is mongo db
@@ -31,7 +32,7 @@ type (
 	Todo struct {
 		//ID primitive.ObjectID `json:"id" bson:"_id"`
 		// ObjectId() or objectid.ObjectID is deprecated--use primitive instead
-		ID primitive.ObjectID `bson:"_id, omitempty"`
+		ID primitive.ObjectID `json:"id" bson:"_id, omitempty"`
 		//ID interface{} `json:"id" bson:"_id"`
 		//ID     primitive.ObjectID `json:"id" bson:"_id, omitempty"`
 		Topic  string `json:"topic" bson:"topic"`
@@ -41,11 +42,11 @@ type (
 	}
 
 	// TodoX is topic test
-	/* TodoX struct {
+	TodoX struct {
 		//ID    *primitive.ObjectID `json:"id" bson:"_id, omitempty"`
-		IDX   interface{} `json:"idx" bson:"_id, omitempty"` // omitempty to protect against zeroed _id insertion
-		Topic string      `json:"topic" bson:"topic"`
-	} */
+		ID    primitive.ObjectID `json:"id" bson:"_id, omitempty"` // omitempty to protect against zeroed _id insertion
+		Topic string             `json:"topic" bson:"topic"`
+	}
 )
 
 // NewTodoModel is active new
@@ -99,10 +100,36 @@ func (m *TodoModel) UpdateTodo(id string, todo *Todo) (*Todo, error) {
 
 	fmt.Println("new update todo:", todo)
 
-	res, err := m.client.Database("document").Collection("todo").UpdateOne(ctx, filter, update)
-	fmt.Println("Updated a Todo: ", res)
+	_, err = m.client.Database("document").Collection("todo").UpdateOne(ctx, filter, update)
+	//fmt.Println("Updated a Todo: ", res)
 
 	return todo, err
+}
+
+// DeleteTodo is delete todo by id
+func (m *TodoModel) DeleteTodo(id string) (int64, error) {
+	var err error
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		//log.Fatal(err)
+		return 0, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// delete document
+	res, err := m.client.Database("document").Collection("todo").DeleteOne(ctx, bson.M{"_id": objectID})
+	if err != nil {
+		//log.Fatal(err)
+		return 0, err
+	}
+
+	fmt.Printf("deleted count: %d\n", res.DeletedCount)
+	// => deleted count: 1
+
+	return res.DeletedCount, err
 }
 
 // GetTodo is get todo by id

@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	//MongoDBClient ...
 	mongoDBClient *mongo.Client
 	err           error
 )

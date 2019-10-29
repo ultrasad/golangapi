@@ -8,7 +8,6 @@ import (
 	"golangapi/models"
 
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type (
@@ -56,45 +55,27 @@ func (h *TodoHandler) CreateTodo(c echo.Context) error {
 // UpdateTodo is update todo by id
 func (h *TodoHandler) UpdateTodo(c echo.Context) (err error) {
 	todoID := c.Param("todoID")
-	//topic := c.FormValue("topic")
-	//topic := c.Param("topic")
 
-	fmt.Printf("update topic todoID: %s \n", todoID)
-
-	idx, _ := primitive.ObjectIDFromHex(todoID)
-	//fmt.Printf("old todos => %s %v", err, id)
-	todo := models.Todo{}
-	//var todo models.Todo
-	//todo := new(models.Todo)
-
-	//fmt.Println("\n todo type:", reflect.TypeOf(todo))
-	//fmt.Println("\n idx type:", reflect.TypeOf(idx))
-
-	//todo := make(map[string]interface{})
-	//var todo models.Todo
+	fmt.Printf("Update topic todoID: %s \n", todoID)
+	var todo models.Todo
 
 	todo, err = h.TodoModel.GetTodo(todoID)
 	if err != nil {
-		//fmt.Println("GetTodo Error: ", err)
 		return c.JSON(http.StatusBadRequest, err)
-		//return c.NoContent(http.StatusNotFound)
-		//return json response
 	}
 
 	//todo.ID = idx.Hex()
-	fmt.Printf("before bind data controller data %v\n ", &todo)
+	//fmt.Printf("before bind data controller data %v\n ", &todo)
 
 	if err := c.Bind(&todo); err != nil {
 		fmt.Println("BindTodo Error, ", err)
-		//return c.NoContent(http.StatusBadRequest)
-		//return json response
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	//fmt.Println("\n todo type:", reflect.TypeOf(todo))
+	//fmt.Printf("after bind data controller data %v\n ", &todo)
 
-	fmt.Printf("after bind data controller data %v\n ", &todo)
-
-	todo.ID = idx
+	//todo.ID = idx
 	//todo.Fake = true
 	//todo.Topic = topic
 	//fmt.Printf("new todo update done: %+v\n", &todo)
@@ -102,6 +83,24 @@ func (h *TodoHandler) UpdateTodo(c echo.Context) (err error) {
 	result, err := h.TodoModel.UpdateTodo(todoID, &todo)
 	//return c.JSON(http.StatusOK, map[string]string{"result": "success"})
 	return c.JSON(http.StatusOK, result)
+}
+
+//DeleteTodo is delete todo by id
+func (h *TodoHandler) DeleteTodo(c echo.Context) (err error) {
+	id := c.Param("todoID")
+
+	zapLog := ZapManager()
+	zapLog.Info("delete topic todoID: " + id)
+
+	deleteID, err := h.TodoModel.DeleteTodo(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"result": "success",
+		"id":     deleteID,
+	})
 }
 
 //GetAllTodo response all todo with limit, perpage

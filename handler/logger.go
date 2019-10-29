@@ -1,10 +1,14 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"golangapi/db/mgo"
 	"os"
+
+	mongoClient "golangapi/db/mongo"
+	//"golangapi/db/mgo"
+
 	"path/filepath"
 
 	//"golangapi/logger"
@@ -67,6 +71,16 @@ type (
 	}
 )
 
+var (
+	zapLogger *zap.Logger
+	//mongoClient *mongo.Client
+)
+
+// ZapManager return zap logger
+func ZapManager() *zap.Logger {
+	return zapLogger
+}
+
 //echo Logs
 // 2019-05-14, comment fix test
 func (lg *Logs) Write(logEcho []byte) (n int, err error) {
@@ -84,14 +98,24 @@ func (lg *Logs) Write(logEcho []byte) (n int, err error) {
 
 	//MgoClient
 	go func() {
-		client := mgo.MongoClient().Copy()
-		defer client.Close()
+		//client := mgo.MongoClient().Copy()
+		//defer client.Close()
 
-		if err := client.DB("document").C(lg.Collection).Insert(&lg); err != nil {
+		/* if err := client.DB("document").C(lg.Collection).Insert(&lg); err != nil {
 			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
 		} else {
 			//fmt.Printf("\n not err, time:%s\n", time.Now())
+		} */
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		client := mongoClient.ClientManager()
+
+		if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
 		}
+
 	}()
 
 	return len(logEcho), nil
@@ -123,10 +147,15 @@ func (lg *Zaplog) Write(logByte []byte) (n int, err error) {
 
 	//MgoClient
 	go func() {
-		client := mgo.MongoClient().Copy()
-		defer client.Close()
+		//client := mgo.MongoClient().Copy()
+		//defer client.Close()
 
-		if err := client.DB("document").C(lg.Collection).Insert(&lg); err != nil {
+		client := mongoClient.ClientManager()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
 			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
 		}
 	}()
@@ -213,7 +242,7 @@ func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 //InitialLogs is init logs
 func InitialLogs(e *echo.Echo) {
 
-	fmt.Println("InitialLogs..")
+	fmt.Println("InitialLogs...")
 
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
@@ -248,9 +277,10 @@ func InitialLogs(e *echo.Echo) {
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 	//log.SetFlags(0)
 
-	zaplogger := zap.New(core, zap.AddCaller())
+	//Zaplog := zap.New(core, zap.AddCaller())
+	zapLogger = zap.New(core, zap.AddCaller())
 
-	e.Use(ZapLogger(zaplogger))
+	e.Use(ZapLogger(zapLogger))
 
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `{"level":"info", "time":"${time_rfc3339}","id":"${id}","remote_ip":"${remote_ip}","host":"${host}",` +
