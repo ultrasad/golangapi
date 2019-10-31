@@ -12,12 +12,17 @@ import (
 
 var (
 	//MongoDBClient ...
-	mongoDBClient *mongo.Client
-	err           error
+	//mongoDBClient *mongo.Client
+
+	//mongoDBCollection ...
+	mongoDBClient *mongo.Database
+
+	err error
 )
 
 // ConnectMongo return Mongo Connection
-func ConnectMongo() *mongo.Client {
+//func ConnectMongo() *mongo.Client {
+func ConnectMongo() *mongo.Database {
 	mongoHost := viper.GetString("mongo.host")
 	mongoUser := viper.GetString("mongo.user")
 	mongoPass := viper.GetString("mongo.pass")
@@ -26,17 +31,19 @@ func ConnectMongo() *mongo.Client {
 	connString := fmt.Sprintf("mongodb://%v:%v@%v", mongoUser, mongoPass, mongoHost)
 
 	clientOptions := options.Client().ApplyURI(connString)
-	mongoDBClient, err = mongo.Connect(ctx, clientOptions)
+	client, err := mongo.Connect(ctx, clientOptions)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = mongoDBClient.Ping(ctx, nil)
+	err = client.Ping(ctx, nil)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	mongoDBClient = client.Database("document")
 
 	fmt.Println("Connected to MongoDB!")
 
@@ -44,7 +51,11 @@ func ConnectMongo() *mongo.Client {
 }
 
 // ClientManager return MongoDB Session
-func ClientManager() *mongo.Client {
+/* func ClientManager() *mongo.Client {
+	//fmt.Println("Call Mongo Client Manager.")
+	return mongoDBClient
+} */
+func ClientManager() *mongo.Database {
 	//fmt.Println("Call Mongo Client Manager.")
 	return mongoDBClient
 }

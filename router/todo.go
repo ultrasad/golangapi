@@ -6,16 +6,15 @@ import (
 	"golangapi/models"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 //InitialRouteTodo is init todo route
 func InitialRouteTodo(e *echo.Echo) {
 	todo := handler.NewTodoHandler(models.NewTodoModel(mongo.ClientManager()))
 
-	r := e.Group("/api")
+	/* r := e.Group("/api")
 	r.Use(middleware.JWT([]byte("secret")))
-	r.GET("/todos", todo.GetAllTodo)
+	r.GET("/todos", todo.GetAllTodo) */
 
 	e.GET("/todos", todo.GetAllTodo)
 	e.POST("/todos", todo.CreateTodo)

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -46,51 +47,39 @@ func NewUserHandler(u models.UserStore) *UserHandler {
 //CreateUser is create new user
 func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 
-	/* jsonMap := make(map[string]interface{})
+	jsonMap := make(map[string]interface{})
 	err = json.NewDecoder(c.Request().Body).Decode(&jsonMap)
 	if err != nil {
 		return err
-	} */
-
-	//s, _ := ioutil.ReadAll(c.Request().Body)
-	//log.Printf("Json Received: %s\n", s)
+	}
 
 	//jsonMap has the JSON Payload decoded into a map
-	/* prefix := jsonMap["prefix"]
+
+	prefix := jsonMap["prefix"]
 	name := jsonMap["name"]
 	email := jsonMap["email"]
 	inputdate := jsonMap["create_date"]
+
 	inputtamp := jsonMap["timestamp"]
 
 	//"2006-01-02 15:04:05" is standard format datetime golang
 	timestamp, _ := time.Parse("2006-01-02 15:04:05", inputtamp.(string))
 
 	user := &models.User{Name: name.(string), Email: email.(string), Prefix: prefix.(string), Timestamp: timestamp, CreateDate: inputdate.(string)}
-	*/
 
-	//fmt.Println("json map => ", jsonMap)
+	/* user := models.User{}
+	byteData, _ := json.Marshal(jsonMap)
 
-	user := models.User{ID: 3, CreateDate: "2019-10-31", Timestamp: time.Now()}
-	//user := models.User{}
+	//jsonData := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(byteData), &user); err != nil {
+		//log reponse
 
-	//s, _ := ioutil.ReadAll(c.Request().Body)
-	//log.Printf("Json Received: %s\n", s)
+		//log.Warn("Request:Reponse error - " + jsonStr)
 
-	/* jsonMap := make(map[string]interface{})
-	err = json.NewDecoder(c.Request().Body).Decode(&jsonMap)
-	if err != nil {
-		//return err
-		return c.JSON(http.StatusBadRequest, err)
-	} */
-
-	if err := c.Bind(&user); err != nil {
-		//fmt.Println("BindUser Error, ", err)
-		//return c.NoContent(http.StatusBadRequest)
-		//return json response
-		return c.JSON(http.StatusBadRequest, err)
+		fmt.Println("err jsonData  => ", err)
 	}
 
-	//fmt.Println("json map user => ", &user)
+	fmt.Println("BindUser, ", user) */
 
 	/* if err := c.Bind(&user); err != nil {
 		fmt.Println("BindUser Error, ", err)
@@ -100,12 +89,11 @@ func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 	} */
 
 	//user.Timestamp.Format("2006-01-02 15:04:05")
-	result, err := h.UserModel.CreateUserWithTransection(&user)
+	err = models.CreateUser(user)
 	if err != nil {
-		return c.JSON(http.StatusFound, err)
+		return
 	}
-
-	return c.JSON(http.StatusCreated, result)
+	return c.JSON(http.StatusOK, user)
 }
 
 //GetUserByID is get user by id

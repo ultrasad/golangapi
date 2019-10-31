@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,8 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	//"github.com/stretchr/testify/mock"
-
 	//"golangapi/controllers"
+	//"golangapi/models"
 	"golangapi/models"
 )
 
@@ -35,14 +36,76 @@ var (
 */
 
 var (
-	layout = "2006-01-02T15:04:05.000Z"
-	str    = "2014-11-12T11:45:26.371Z"
-	t, err = time.Parse(time.RFC3339, str)
+	layout  = "2006-01-02T15:04:05.000Z"
+	str     = "2014-11-12T11:45:26.371Z"
+	tt, err = time.Parse(time.RFC3339, str)
+
+	/* mockDB = map[string]*models.User{
+		"jon@labstack.com": &models.User{"Jon Snow", "jon@labstack.com"},
+	} */
+
+	mockUserDB = models.User{
+		ID:         1,
+		Prefix:     "Mr",
+		Name:       "Hanajung",
+		Email:      "kissing-bear@hotmail.com",
+		CreateDate: "2019-10-24",
+		Timestamp:  tt,
+	}
+
+	//userMockJSON = `{"name":"Jon Snow","email":"jon@labstack.com"}`
 )
 
 type (
 	UsersModelStub struct{}
 )
+
+func TestCreateUser(t *testing.T) {
+	// Setup
+	e := echo.New()
+
+	//var userJSON = fmt.Sprintf(`{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}%s`, "\n")
+	var userMockJSONResponse = fmt.Sprintf(`{"id":3,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}%s`, "\n")
+	var userJSON = fmt.Sprintf(`{"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com", "create_date":"2019-10-24", "timestamp":"2014-11-12T11:45:26.371Z"}%s`, "\n")
+
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(userJSON))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	//h := &handler{mockDB}
+	u := &UsersModelStub{}
+	h := NewUserHandler(u)
+
+	// Assertions
+	if assert.NoError(t, h.CreateUser(c)) {
+		assert.Equal(t, http.StatusCreated, rec.Code)
+		assert.Equal(t, userMockJSONResponse, rec.Body.String())
+	}
+}
+
+func (u *UsersModelStub) CreateUserWithTransection(user *models.User) (*models.User, error) {
+	return &models.User{
+		ID:         3,
+		Prefix:     "Mr",
+		Name:       "Hanajung",
+		Email:      "kissing-bear@hotmail.com",
+		CreateDate: "2019-10-24",
+		Timestamp:  tt,
+	}, nil
+	//return mockUserDB
+}
+
+/* func (u *UsersModelStub) CreateUser(id string) models.User {
+	return models.User{
+		ID:         1,
+		Prefix:     "Mr",
+		Name:       "Hanajung",
+		Email:      "kissing-bear@hotmail.com",
+		CreateDate: "2019-10-24",
+		Timestamp:  tt,
+	}
+	//return mockUserDB
+} */
 
 func (u *UsersModelStub) GetUserByID(id string) models.User {
 	return models.User{
@@ -51,7 +114,9 @@ func (u *UsersModelStub) GetUserByID(id string) models.User {
 		Name:       "Hanajung",
 		Email:      "kissing-bear@hotmail.com",
 		CreateDate: "2019-10-24",
-		Timestamp:  t,
+		//Timestamp:  time.Time,
+		//Timestamp: models.CustomTime{t},
+		Timestamp: tt,
 	}
 }
 
@@ -64,7 +129,8 @@ func (u *UsersModelStub) GetAllUser() []models.User {
 		Name:       "Hanajung",
 		Email:      "kissing-bear@hotmail.com",
 		CreateDate: "2019-10-24",
-		Timestamp:  t,
+		//Timestamp:  models.CustomTime{t},
+		Timestamp: tt,
 	})
 
 	fmt.Println("users => ", users)
@@ -114,6 +180,53 @@ func TestGetUser(t *testing.T) {
 		assert.Equal(t, userJSON, rec.Body.String())
 	}
 }
+
+/* func TestCreateUser(t *testing.T) {
+	e := echo.New()
+	user := NewUserHandler(models.NewUserModel(gormdb.DBManager()))
+
+	testUser := &models.User{
+		ID:         3,
+		Prefix:     "Mr",
+		Name:       "Hanajung",
+		Email:      "kissing-bear@hotmail.com",
+		CreateDate: "2019-10-24",
+		Timestamp:  tt,
+	}
+
+	// Transform Star record into *strings.Reader suitable for use in HTTP POST forms.
+	data := url.Values{
+		"prefix":      {testUser.Prefix},
+		"name":        {testUser.Name},
+		"email":       {testUser.Email},
+		"create_date": {testUser.CreateDate},
+	}
+
+	form := strings.NewReader(data.Encode())
+
+	// Set up a new request.
+	req, err := http.NewRequest("POST", "/stars", form)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Our API expects a form body, so set the content-type header to make sure it's treated as one.
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	//rr := httptest.NewRecorder()
+	//http.HandlerFunc(user.CreateUser).ServeHTTP(rr, req)
+
+	//req := httptest.NewRequest(echo.POST, "/", form)
+	//req.Header.Add("Content-Type", "application/json")
+	//rec := httptest.NewRecorder()
+	//c := e.NewContext(req, rec)
+	//c.SetPath("/users")
+
+	//if assert.NoError(t, user.CreateUser(c)) {
+	//	assert.Equal(t, http.StatusOK, rec.Code)
+	//	assert.Equal(t, userJSON, rec.Body.String())
+	//}
+} */
 
 /* func TestGetIndex(t *testing.T) {
 	e := echo.New()

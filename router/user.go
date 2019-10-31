@@ -21,6 +21,8 @@ func InitialRouteUser(e *echo.Echo) {
 
 	e.GET("/users/:id", user.GetUserByID)
 
+	e.POST("/users", user.CreateUser)
+
 	//user test with manual db connect
 	e.GET("/allusers", user.GetAllUser)
 }

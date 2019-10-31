@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"golangapi/models"
 
@@ -24,6 +25,9 @@ func NewTodoHandler(u models.TodoStore) *TodoHandler {
 
 //GetTodo reponse todo by id, (//FindTodo)
 func (h *TodoHandler) GetTodo(c echo.Context) error {
+
+	fmt.Println("call handler time => ", time.Now().Local())
+
 	id := c.Param("todoID")
 	result, err := h.TodoModel.GetTodo(id)
 	if err != nil {

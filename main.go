@@ -37,9 +37,28 @@ func main() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.SetDefault("port", "8083")
 
+	/* t := time.Now()
+	fmt.Println("Location : ", t.Location(), " Time : ", t) // local time
+
+	location, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Location : ", location, " Time : ", t.In(location)) // America/New_York
+
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	now := time.Now().In(loc)
+	fmt.Println("Location : ", loc, " Time : ", now) // Asia/Shanghai */
+
 	e := echo.New()
 
 	e.Use(middleware.RequestID())
+
+	//CORS
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+	}))
 
 	/* e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		//AllowOrigins: []string{"https://labstack.com", "https://labstack.net"},
@@ -70,6 +89,9 @@ func main() {
 
 	//Init Route
 	router.InitialRoute(e)
+
+	//Init log file
+	handler.InitLogFile("logs", "INFO")
 
 	//Init Logs
 	handler.InitialLogs(e)

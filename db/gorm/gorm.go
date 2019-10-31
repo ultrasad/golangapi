@@ -44,7 +44,9 @@ func ConnectMySQL() *gorm.DB {
 	PROTOCOL := viper.GetString("mysql.protocal")
 	DBNAME := viper.GetString("mysql.db")
 
-	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=True"
+	//dsn := root:root@tcp(127.0.0.1:3306)/event?parseTime=true&loc=Asia%2FJakarta&charset=utf8mb4&collation=utf8mb4_unicode_ci
+	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=True&loc=Asia%2FBangkok&charset=utf8&collation=utf8_unicode_ci"
+	//CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=True&charset=utf8&collation=utf8_unicode_ci"
 	/*db,err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
 		panic(err.Error())

@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	mongoClient "golangapi/db/mongo"
 	//"golangapi/db/mgo"
-
-	"path/filepath"
 
 	//"golangapi/logger"
 	//"golangapi/middlewares"
@@ -69,6 +69,10 @@ type (
 		Data       CtxLogger `bson:"data" json:"data"`
 		Collection string    `bson:"-"`
 	}
+
+	lumberjackSink struct {
+		*lumberjack.Logger
+	}
 )
 
 var (
@@ -79,6 +83,70 @@ var (
 // ZapManager return zap logger
 func ZapManager() *zap.Logger {
 	return zapLogger
+}
+
+const (
+	// ERROR ...
+	ERROR = iota
+	// INFO ...
+	INFO
+	// SQL ...
+	SQL
+	// DEBUG ...
+	DEBUG
+)
+
+var levelMap = map[string]int{
+	"ERROR": ERROR,
+	"INFO":  INFO,
+	"SQL":   SQL,
+	"DEBUG": DEBUG,
+}
+
+var (
+	// log type
+	debugFile = ""
+	sqlFile   = ""
+	infoFile  = ""
+	errorFile = ""
+
+	accessFile = ""
+
+	level = DEBUG
+)
+
+func openFile(filename string) (*os.File, error) {
+	if filename == "" {
+		log.Println("[WARNING] You must call logger.Init function First!")
+		return nil, fmt.Errorf("[WARNING] You must call logger.Init function First")
+	}
+
+	filename += "-" + time.Now().Format("060102")
+
+	fmt.Printf("Filename: %s ", filename)
+
+	return os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+}
+
+// InitLogFile InitLogFile("", "INFO")
+func InitLogFile(logPath, tmpLevel string, prefixs ...string) {
+	prefix := ""
+	if len(prefixs) > 0 {
+		prefix = prefixs[0] + "-"
+	}
+
+	os.Mkdir(logPath, 0777)
+
+	debugFile = logPath + "/" + prefix + "debug.log"
+	sqlFile = logPath + "/" + prefix + "sql.log"
+	infoFile = logPath + "/" + prefix + "info.log"
+	errorFile = logPath + "/" + prefix + "error.log"
+
+	accessFile = logPath + "/" + prefix + "access.log"
+
+	level = levelMap[strings.ToUpper(tmpLevel)]
+
+	fmt.Printf("INFO Log File:%s, Level:%v", infoFile, level)
 }
 
 //echo Logs
@@ -112,7 +180,8 @@ func (lg *Logs) Write(logEcho []byte) (n int, err error) {
 
 		client := mongoClient.ClientManager()
 
-		if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+		//if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+		if _, err := client.Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
 			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
 		}
 
@@ -155,7 +224,8 @@ func (lg *Zaplog) Write(logByte []byte) (n int, err error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+		//if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+		if _, err := client.Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
 			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
 		}
 	}()
@@ -236,8 +306,13 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 
 // TimeEncoder return time encode
 func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(t.UTC().Format("2006-01-02T15:04:05Z"))
+	//enc.AppendString(t.UTC().Format("2006-01-02T15:04:05Z"))
+	enc.AppendString(t.Local().Format("2006-01-02T15:04:05Z07:00"))
 }
+
+// Sync implements zap.Sink. The remaining methods are implemented
+// by the embedded *lumberjack.Logger.
+func (lumberjackSink) Sync() error { return nil }
 
 //InitialLogs is init logs
 func InitialLogs(e *echo.Echo) {
@@ -265,10 +340,12 @@ func InitialLogs(e *echo.Echo) {
 			zapcore.AddSync(os.Stdout),
 			zapcore.AddSync(&Zaplog{Collection: "logger"}),
 			zapcore.AddSync(&lumberjack.Logger{
-				Filename: filepath.Join("./logs", fmt.Sprintf("%s%s", time.Now().Format("2006-01-02"), ".log")), //	Format YYYY-MM-DD
-				MaxSize:  100,                                                                                   // megabytes
-				MaxAge:   28,                                                                                    //	days
-				Compress: true,                                                                                  // disabled by default
+				//Filename: filepath.Join("./logs", fmt.Sprintf("%s%s", time.Now().Format("2006-01-02"), ".log")), // Format YYYY-MM-DD
+				Filename:  filepath.Join("./logs", "access.log"), // Format YYYY-MM-DD
+				MaxSize:   100,                                   // megabytes, default 100 MB
+				MaxAge:    28,                                    // days
+				Compress:  true,                                  // disabled by default
+				LocalTime: true,
 			}),
 		),
 		zap.InfoLevel,
@@ -277,8 +354,27 @@ func InitialLogs(e *echo.Echo) {
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 	//log.SetFlags(0)
 
-	//Zaplog := zap.New(core, zap.AddCaller())
-	zapLogger = zap.New(core, zap.AddCaller())
+	zapLogger := zap.New(core, zap.AddCaller())
+	//zapLogger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.InfoLevel))
+
+	/* zap.RegisterSink("lumberjack", func(u *url.URL) (zap.Sink, error) {
+		return lumberjackSink{
+			Logger: &lumberjack.Logger{
+				Filename: u.Opaque,
+
+				// Use query parameters or hardcoded values for remaining
+				// fields.
+			},
+		}, nil
+	})
+
+	config := zap.NewProductionConfig()
+
+	// Add a URL with the "lumberjack" scheme.
+	config.OutputPaths = append(config.OutputPaths, "lumberjack:foo.log")
+
+	log, _ := config.Build()
+	log.Info("test", zap.String("foo", "bar")) */
 
 	e.Use(ZapLogger(zapLogger))
 

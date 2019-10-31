@@ -1,11 +1,10 @@
-package models
+package _models
 
 import (
 
 	//"github.com/jinzhu/gorm"
 
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -27,15 +26,13 @@ const ctLayout = "2006-01-02 15:04:05 Z07:00"
 
 type (
 
-	// UserStore is user interface
+	//UserStore is user interface
 	UserStore interface {
 		GetUserByID(id string) User
 		GetAllUser() []User
-		//CreateUser(*User) (*User, error)
-		CreateUserWithTransection(*User) (*User, error)
 	}
 
-	// Marshaler is json marshal
+	//Marshaler is json marshal
 	Marshaler interface {
 		MarshalJSON() ([]byte, error)
 	}
@@ -45,32 +42,26 @@ type (
 		db *gorm.DB
 	}
 
-	// JSONTime is json time custom
+	//JSONTime is json time custom
 	/* JSONTime struct {
 		*time.Time
 	} */
 
-	// CustomTime is custom datetime
+	//CustomTime is custom time
 	CustomTime struct {
-		time.Time
-	}
-
-	// SpecialDate is custom datetime
-	SpecialDate struct {
 		time.Time
 	}
 
 	//User is user
 	User struct {
 		//BaseModel
-		ID         int       `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
+		ID         uint64    `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
 		Prefix     string    `json:"prefix"`
 		Name       string    `json:"name"`
 		Email      string    `json:"email"`
 		CreateDate string    `json:"create_date"`
 		Timestamp  time.Time `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
 		//Timestamp CustomTime `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
-		//Timestamp SpecialDate `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
 	}
 
 	// myTime is custom datetime
@@ -125,19 +116,15 @@ type (
 } */
 
 //UnmarshalJSON custom datetime
-func (t *SpecialDate) UnmarshalJSON(buf []byte) error {
+/* func (t *SpecialDateTime) UnmarshalJSON(buf []byte) error {
 	//tt, err := time.Parse(time.RFC1123, strings.Trim(string(buf), `"`))
-	//tt, err := time.Parse(time.RFC3339, strings.Trim(string(buf), `"`))
-	tt, err := time.Parse("2006-01-02 15:04:05", strings.Trim(string(buf), `"`))
+	tt, err := time.Parse(time.RFC3339, strings.Trim(string(buf), `"`))
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("UnmarshalJSON SpecialDate => ", tt)
-
 	t.Time = tt
 	return nil
-}
+} */
 
 /* // UnmarshalJSON Parses the json string in the custom format
 func (ct *CustomTime) UnmarshalJSON(b []byte) (err error) {
@@ -193,50 +180,25 @@ func Create(v interface{}) error {
 }
 
 //CreateUserWithTransection is create user with transection
-func (h *UserModel) CreateUserWithTransection(u *User) (*User, error) {
+func CreateUserWithTransection(u *User) (*User, error) {
 	err := Create(u)
 	return u, err
-}
-
-//CreateUserWithTransection is create user with transection
-/* func CreateUserWithTransection(u *User) (*User, error) {
-	err := Create(u)
-	return u, err
-} */
-
-//CreateUser is create new user
-func (h *UserModel) CreateUser(user *User) error {
-	return WithinTransaction(func(tx *gorm.DB) (err error) {
-		// check new object
-		if !gormdb.DBManager().NewRecord(user) {
-			fmt.Println("err NewRecord", err)
-			return err
-		}
-		if err = tx.Create(user).Error; err != nil {
-			fmt.Println("err Rollback", err)
-			tx.Rollback() // rollback
-			return err
-		}
-		return err
-	})
 }
 
 //CreateUser is create user
-/* func CreateUser(v interface{}) error {
+func CreateUser(v interface{}) error {
 	return WithinTransaction(func(tx *gorm.DB) (err error) {
 		// check new object
 		if !gormdb.DBManager().NewRecord(v) {
-			fmt.Println("err NewRecord", err)
 			return err
 		}
 		if err = tx.Create(v).Error; err != nil {
-			fmt.Println("err Rollback", err)
 			tx.Rollback() // rollback
 			return err
 		}
 		return err
 	})
-} */
+}
 
 //GetUserByID is get user
 func (h *UserModel) GetUserByID(id string) User {

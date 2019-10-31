@@ -1,0 +1,1 @@
+{"level":"info","ts":1572358473.333309,"caller":"handler/logger.go:372","msg":"test","foo":"bar"}
