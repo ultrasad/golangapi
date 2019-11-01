@@ -70,7 +70,9 @@ func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 
 	//fmt.Println("json map => ", jsonMap)
 
-	user := models.User{ID: 3, CreateDate: "2019-10-31", Timestamp: time.Now()}
+	//user := models.User{ID: 3, CreateDate: "2019-10-31", Timestamp: time.Now()}
+	//user := models.User{CreateDate: "2019-10-31", Timestamp: time.Now()}
+	user := models.User{}
 	//user := models.User{}
 
 	//s, _ := ioutil.ReadAll(c.Request().Body)
@@ -90,6 +92,9 @@ func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
+	user.CreateDate = time.Now().Local().Format("2006-01-02")
+	user.Timestamp = time.Now().Local()
+
 	//fmt.Println("json map user => ", &user)
 
 	/* if err := c.Bind(&user); err != nil {
@@ -102,7 +107,8 @@ func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 	//user.Timestamp.Format("2006-01-02 15:04:05")
 	result, err := h.UserModel.CreateUserWithTransection(&user)
 	if err != nil {
-		return c.JSON(http.StatusFound, err)
+		fmt.Println("error not nil => ", err)
+		return c.JSON(http.StatusFound, map[string]string{"error": err.Error()})
 	}
 
 	return c.JSON(http.StatusCreated, result)

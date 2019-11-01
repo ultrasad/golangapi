@@ -4,8 +4,8 @@ import (
 
 	//"github.com/jinzhu/gorm"
 
+	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -36,9 +36,9 @@ type (
 	}
 
 	// Marshaler is json marshal
-	Marshaler interface {
+	/* Marshaler interface {
 		MarshalJSON() ([]byte, error)
-	}
+	} */
 
 	//UserModel ...
 	UserModel struct {
@@ -63,7 +63,7 @@ type (
 	//User is user
 	User struct {
 		//BaseModel
-		ID         int       `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
+		ID         uint64    `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
 		Prefix     string    `json:"prefix"`
 		Name       string    `json:"name"`
 		Email      string    `json:"email"`
@@ -124,8 +124,54 @@ type (
 	})
 } */
 
+//MarshalJSON ...
+func (u *User) MarshalJSON() ([]byte, error) {
+	type Alias User
+	fmt.Println("marshal User Timestamp => ", u.Timestamp.Unix())
+	return json.Marshal(&struct {
+		Timestamp string `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		*Alias
+	}{
+		Timestamp: u.Timestamp.Format("2006-01-02 15:04:05"),
+		Alias:     (*Alias)(u),
+	})
+}
+
+/* func (u *User) MarshalJSON() ([]byte, error) {
+	type Alias User
+	fmt.Println("marshal User Timestamp => ", u.Timestamp.Unix())
+	return json.Marshal(&struct {
+		Timestamp int64 `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		*Alias
+	}{
+		Timestamp: u.Timestamp.Unix(),
+		Alias:     (*Alias)(u),
+	})
+} */
+
+//UnmarshalJSON ...
+/* func (u *User) UnmarshalJSON(data []byte) error {
+	type Alias User
+	aux := struct {
+		Timestamp int64 `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		//Timestamp string `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		*Alias
+	}{
+		//Timestamp: u.Timestamp.Format("2006-01-02 15:04:05"),
+		Alias: (*Alias)(u),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	//u.Timestamp = time.Unix(aux.Timestamp, 0)
+	u.Timestamp = time.Unix(aux.Timestamp, 0)
+	fmt.Println("unmarshal timestamp => ", aux.Timestamp)
+	return nil
+} */
+
 //UnmarshalJSON custom datetime
-func (t *SpecialDate) UnmarshalJSON(buf []byte) error {
+//Test OK
+/* func (t *SpecialDate) UnmarshalJSON(buf []byte) error {
 	//tt, err := time.Parse(time.RFC1123, strings.Trim(string(buf), `"`))
 	//tt, err := time.Parse(time.RFC3339, strings.Trim(string(buf), `"`))
 	tt, err := time.Parse("2006-01-02 15:04:05", strings.Trim(string(buf), `"`))
@@ -137,7 +183,7 @@ func (t *SpecialDate) UnmarshalJSON(buf []byte) error {
 
 	t.Time = tt
 	return nil
-}
+} */
 
 /* // UnmarshalJSON Parses the json string in the custom format
 func (ct *CustomTime) UnmarshalJSON(b []byte) (err error) {
@@ -172,6 +218,8 @@ func WithinTransaction(fn DBFunc) (err error) {
 	tx := gormdb.DBManager().Begin() // start db transaction
 	defer tx.Commit()
 	err = fn(tx)
+
+	fmt.Println("transection err...", err)
 	// close db transaction
 	return err
 }
@@ -194,8 +242,41 @@ func Create(v interface{}) error {
 
 //CreateUserWithTransection is create user with transection
 func (h *UserModel) CreateUserWithTransection(u *User) (*User, error) {
-	err := Create(u)
-	return u, err
+	fmt.Println("call model...", u)
+
+	// check new object
+	if !h.db.NewRecord(u) { // => returns `true` as primary key is blank
+		fmt.Println("err NewRecord user...")
+		return nil, fmt.Errorf("%s", "Auto ID not request.")
+	}
+
+	// Note the use of tx as the database handle once you are within a transaction
+	tx := h.db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return nil, err
+	}
+
+	//if err := tx.Create(u).Scan(&u).Error; err != nil {
+	if err := tx.Create(u).Error; err != nil {
+		fmt.Println("err Create user...")
+		tx.Rollback() // rollback
+		return u, err
+	}
+
+	//fmt.Println("Create new user...", u.CreateDate)
+
+	//cTime, _ := time.Parse("2006-01-02T15:04:05Z07:00", u.CreateDate)
+	//u.CreateDate = cTime.Format("2006-01-02")
+
+	//fmt.Println("After Create new user...", u.CreateDate)
+	return u, tx.Commit().Error
 }
 
 //CreateUserWithTransection is create user with transection
