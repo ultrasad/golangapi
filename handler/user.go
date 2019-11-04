@@ -92,7 +92,8 @@ func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	user.CreateDate = time.Now().Local().Format("2006-01-02")
+	//user.CreateDate = time.Now().Local().Format("2006-01-02")
+	user.CreateDate = time.Now().Local()
 	user.Timestamp = time.Now().Local()
 
 	//fmt.Println("json map user => ", &user)
@@ -111,6 +112,8 @@ func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 		return c.JSON(http.StatusFound, map[string]string{"error": err.Error()})
 	}
 
+	result.CreateDateString = result.CreateDate.Local().Format("2006-01-02")
+
 	return c.JSON(http.StatusCreated, result)
 }
 
@@ -118,7 +121,7 @@ func (h *UserHandler) CreateUser(c echo.Context) (err error) {
 func (h *UserHandler) GetUserByID(c echo.Context) error {
 	id := c.Param("id")
 	result := h.UserModel.GetUserByID(id)
-	//fmt.Println("json response => ", result)
+	//fmt.Println("json response create date => ", result.CreateDate.Local())
 
 	/* user := User{
 		ID:         1,
@@ -131,8 +134,9 @@ func (h *UserHandler) GetUserByID(c echo.Context) error {
 
 	js, _ := json.Marshal(user)
 	return c.JSONBlob(http.StatusOK, js) */
-	createDate, _ := time.Parse(time.RFC3339, result.CreateDate)
-	result.CreateDate = createDate.Local().Format("2006-01-02")
+
+	//createDate, _ := time.Parse(time.RFC3339, result.CreateDate)
+	result.CreateDateString = result.CreateDate.Local().Format("2006-01-02")
 
 	return c.JSON(http.StatusOK, result)
 }
@@ -146,7 +150,7 @@ func (h *UserHandler) GetAllUser(c echo.Context) error {
 	for i, ar := range result {
 		//createDate, _ := time.Parse("2006-01-02T00:00:00Z", ar.CreateDate)
 		//createDate, _ := time.Parse("2006-01-02T15:04:05Z07:00", ar.CreateDate)
-		createDate, _ := time.Parse(time.RFC3339, ar.CreateDate)
+		//createDate, _ := time.Parse(time.RFC3339, ar.CreateDate)
 		/*
 			if error != nil {
 				fmt.Println("error => ", error)
@@ -161,7 +165,9 @@ func (h *UserHandler) GetAllUser(c echo.Context) error {
 		*/
 
 		//fmt.Println("reponse date => ", i, createDate.Format("2006-01-02"))
-		result[i].CreateDate = createDate.Local().Format("2006-01-02")
+		//result[i].CreateDate = createDate.Local().Format("2006-01-02")
+
+		result[i].CreateDateString = result[i].CreateDate.Local().Format("2006-01-02")
 
 		fmt.Println("reponse date => ", i, ar.CreateDate)
 	}

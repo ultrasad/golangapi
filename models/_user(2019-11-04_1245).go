@@ -34,29 +34,187 @@ type (
 		CreateUserWithTransection(*User) (*User, error)
 	}
 
+	// Marshaler is json marshal
+	/* Marshaler interface {
+		MarshalJSON() ([]byte, error)
+	} */
+
 	//UserModel ...
 	UserModel struct {
 		db *gorm.DB
 	}
 
+	// JSONTime is json time custom
+	/* JSONTime struct {
+		*time.Time
+	} */
+
+	// CustomTime is custom datetime
+	CustomTime struct {
+		time.Time
+	}
+
+	// SpecialDate is custom datetime
+	SpecialDate struct {
+		time.Time
+	}
+
 	//User is user
 	User struct {
 		//BaseModel
-		ID     uint64 `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
-		Prefix string `json:"prefix"`
-		Name   string `json:"name"`
-		Email  string `json:"email"`
-		//CreateDate string    `json:"create_date"`
-		CreateDate       time.Time `json:"-" gorm:"column:create_date"`
-		CreateDateString string    `json:"create_date" gorm:"-"`
-		Timestamp        time.Time `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		ID         uint64    `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
+		Prefix     string    `json:"prefix"`
+		Name       string    `json:"name"`
+		Email      string    `json:"email"`
+		CreateDate string    `json:"create_date"`
+		Timestamp  time.Time `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
 		//Timestamp CustomTime `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
 		//Timestamp SpecialDate `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
 	}
 
+	// myTime is custom datetime
+	/* myTime struct {
+		time.Time
+	} */
+
 	//DBFunc gorm return error
 	DBFunc func(tx *gorm.DB) error // func type which accept *gorm.DB and return error
+
+	//Users is user
+	/* Users struct {
+		Users []User
+	} */
 )
+
+/*
+//Users is user
+type Users struct {
+	Users []User
+}
+*/
+
+/*
+//DBFunc gorm return error
+type (
+	DBFunc func(tx *gorm.DB) error // func type which accept *gorm.DB and return error
+)
+*/
+
+/* func (t myTime) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + t.Time.Format(time.RFC3339) + `"`), nil
+} */
+
+// MarshalJSON is custom json struct
+/* func (t JSONTime) MarshalJSON() ([]byte, error) {
+	//do your serializing here
+	stamp := fmt.Sprintf("\"%s\"", time.Time(t).Format("Mon Jan _2"))
+	return []byte(stamp), nil
+} */
+
+// MarshalJSON is custom json struct
+/* func (d *User) MarshalJSON() ([]byte, error) {
+	type Alias User
+	return json.Marshal(&struct {
+		*Alias
+		Timestamp string `json:"stamp"`
+	}{
+		Alias:     (*User)(d),
+		Timestamp: d.Timestamp.Format("Mon Jan _2"),
+	})
+} */
+
+//MarshalJSON ... #OK
+/* func (u *User) MarshalJSON() ([]byte, error) {
+	type Alias User
+	fmt.Println("marshal User Timestamp => ", u.Timestamp.Unix())
+	return json.Marshal(&struct {
+		Timestamp string `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		*Alias
+	}{
+		Timestamp: u.Timestamp.Format("2006-01-02 15:04:05"),
+		Alias:     (*Alias)(u),
+	})
+} */
+
+/* func (u *User) MarshalJSON() ([]byte, error) {
+	type Alias User
+	fmt.Println("marshal User Timestamp => ", u.Timestamp.Unix())
+	return json.Marshal(&struct {
+		Timestamp int64 `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		*Alias
+	}{
+		Timestamp: u.Timestamp.Unix(),
+		Alias:     (*Alias)(u),
+	})
+} */
+
+//UnmarshalJSON ...
+/* func (u *User) UnmarshalJSON(data []byte) error {
+	type Alias User
+	fmt.Println("unmarshal json User Timestamp => ", u.Timestamp.Unix())
+	aux := struct {
+		Timestamp int64 `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		//Timestamp string `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+		*Alias
+	}{
+		//Timestamp: u.Timestamp.Format("2006-01-02 15:04:05"),
+		Alias: (*Alias)(u),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	//u.Timestamp = time.Unix(aux.Timestamp, 0)
+	u.Timestamp = time.Unix(aux.Timestamp, 0)
+	fmt.Println("unmarshal timestamp => ", aux.Timestamp)
+	return nil
+} */
+
+//Scan ...
+func (u *User) Scan(b interface{}) (err error) {
+	fmt.Println("scan json User Timestamp => ", u.Timestamp.Unix())
+	switch x := b.(type) {
+	case time.Time:
+		u.Timestamp = x
+	default:
+		err = fmt.Errorf("unsupported scan type %T", b)
+	}
+	return
+}
+
+//UnmarshalJSON custom datetime
+//Test OK
+/* func (t *SpecialDate) UnmarshalJSON(buf []byte) error {
+	//tt, err := time.Parse(time.RFC1123, strings.Trim(string(buf), `"`))
+	//tt, err := time.Parse(time.RFC3339, strings.Trim(string(buf), `"`))
+	tt, err := time.Parse("2006-01-02 15:04:05", strings.Trim(string(buf), `"`))
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("UnmarshalJSON SpecialDate => ", tt)
+
+	t.Time = tt
+	return nil
+} */
+
+/* // UnmarshalJSON Parses the json string in the custom format
+func (ct *CustomTime) UnmarshalJSON(b []byte) (err error) {
+	s := strings.Trim(string(b), `"`)
+	nt, err := time.Parse(ctLayout, s)
+	*ct = CustomTime(nt)
+	return
+}
+
+// MarshalJSON writes a quoted string in the custom format
+func (ct CustomTime) MarshalJSON() ([]byte, error) {
+	return []byte(ct.String()), nil
+}
+
+// String returns the time in the custom format
+func (ct *CustomTime) String() string {
+	t := time.Time(*ct)
+	return fmt.Sprintf("%q", t.Format(ctLayout))
+} */
 
 //NewUserModel ...
 func NewUserModel(db *gorm.DB) *UserModel {

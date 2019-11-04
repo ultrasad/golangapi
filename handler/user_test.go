@@ -36,20 +36,23 @@ var (
 */
 
 var (
-	layout  = "2006-01-02T15:04:05.000Z"
-	str     = "2014-11-12T11:45:26.371Z"
-	tt, err = time.Parse(time.RFC3339, str)
+	layout = "2006-01-02T15:04:05.000Z"
+	str    = "2014-11-12T11:45:26.371Z"
+	//strString   = "2019-11-04T11:45:26.371Z"
+	tt, _ = time.Parse(time.RFC3339, str)
+	//ttString, _ = time.Parse("2006-01-02", strString)
 
 	/* mockDB = map[string]*models.User{
 		"jon@labstack.com": &models.User{"Jon Snow", "jon@labstack.com"},
 	} */
 
 	mockUserDB = models.User{
-		ID:         1,
-		Prefix:     "Mr",
-		Name:       "Hanajung",
-		Email:      "kissing-bear@hotmail.com",
-		CreateDate: "2019-10-24",
+		ID:     1,
+		Prefix: "Mr",
+		Name:   "Hanajung",
+		Email:  "kissing-bear@hotmail.com",
+		//CreateDate: "2019-10-24",
+		CreateDate: time.Now().Local(),
 		Timestamp:  tt,
 	}
 
@@ -85,12 +88,14 @@ func TestCreateUser(t *testing.T) {
 
 func (u *UsersModelStub) CreateUserWithTransection(user *models.User) (*models.User, error) {
 	return &models.User{
-		ID:         3,
-		Prefix:     "Mr",
-		Name:       "Hanajung",
-		Email:      "kissing-bear@hotmail.com",
-		CreateDate: "2019-10-24",
-		Timestamp:  tt,
+		ID:     3,
+		Prefix: "Mr",
+		Name:   "Hanajung",
+		Email:  "kissing-bear@hotmail.com",
+		//CreateDate: "2019-10-24",
+		//CreateDate: time.Now().Local(),
+		CreateDateString: "2019-10-24",
+		Timestamp:        tt,
 	}, nil
 	//return mockUserDB
 }
@@ -109,11 +114,12 @@ func (u *UsersModelStub) CreateUserWithTransection(user *models.User) (*models.U
 
 func (u *UsersModelStub) GetUserByID(id string) models.User {
 	return models.User{
-		ID:         1,
-		Prefix:     "Mr",
-		Name:       "Hanajung",
-		Email:      "kissing-bear@hotmail.com",
-		CreateDate: "2019-10-24",
+		ID:               1,
+		Prefix:           "Mr",
+		Name:             "Hanajung",
+		Email:            "kissing-bear@hotmail.com",
+		CreateDate:       tt,
+		CreateDateString: "2019-11-04",
 		//Timestamp:  time.Time,
 		//Timestamp: models.CustomTime{t},
 		Timestamp: tt,
@@ -124,11 +130,14 @@ func (u *UsersModelStub) GetAllUser() []models.User {
 	users := []models.User{}
 
 	users = append(users, models.User{
-		ID:         1,
-		Prefix:     "Mr",
-		Name:       "Hanajung",
-		Email:      "kissing-bear@hotmail.com",
-		CreateDate: "2019-10-24",
+		ID:     1,
+		Prefix: "Mr",
+		Name:   "Hanajung",
+		Email:  "kissing-bear@hotmail.com",
+		//CreateDate: "2019-10-24",
+		//CreateDate: time.Now().Local(),
+		CreateDate:       tt,
+		CreateDateString: "2019-11-04",
 		//Timestamp:  models.CustomTime{t},
 		Timestamp: tt,
 	})
@@ -169,7 +178,8 @@ func TestGetUser(t *testing.T) {
 	u := &UsersModelStub{}
 	h := NewUserHandler(u)
 
-	var userJSON = fmt.Sprintf(`{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}%s`, "\n")
+	//var userJSON = fmt.Sprintf(`{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}%s`, "\n")
+	var userJSON = fmt.Sprintf(`{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2014-11-12","timestamp":"2014-11-12T11:45:26.371Z"}%s`, "\n")
 
 	//fmt.Println("String => ", rec.Body.String())
 
@@ -257,7 +267,7 @@ func TestGetAllUser(t *testing.T) {
 	h := NewUserHandler(u)
 
 	//var userJSON = `{"users":[{"id":100,"name":"foo"}]}`
-	var userJSON = fmt.Sprintf(`[{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}]%s`, "\n")
+	var userJSON = fmt.Sprintf(`[{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2014-11-12","timestamp":"2014-11-12T11:45:26.371Z"}]%s`, "\n")
 
 	//fmt.Println("Say hi")
 	//fmt.Printf("Body => %s", rec.Body.String())

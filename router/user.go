@@ -19,9 +19,9 @@ func InitialRouteUser(e *echo.Echo) {
 
 	user := handler.NewUserHandler(models.NewUserModel(gormdb.DBManager()))
 
-	e.GET("/users/:id", user.GetUserByID)
+	e.GET("/user/:id", user.GetUserByID)
 
-	e.POST("/users", user.CreateUser)
+	e.POST("/user", user.CreateUser)
 
 	//user test with manual db connect
 	e.GET("/allusers", user.GetAllUser)
