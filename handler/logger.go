@@ -180,8 +180,10 @@ func (lg *Logs) Write(logEcho []byte) (n int, err error) {
 
 		client := mongoClient.ClientManager()
 
-		//if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
-		if _, err := client.Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+		//fmt.Println("write log Logs...")
+
+		if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+			//if _, err := client.Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
 			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
 		}
 
@@ -224,8 +226,10 @@ func (lg *Zaplog) Write(logByte []byte) (n int, err error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		//if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
-		if _, err := client.Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+		//fmt.Println("write log Zaplog...")
+
+		if _, err := client.Database("document").Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
+			//if _, err := client.Collection(lg.Collection).InsertOne(ctx, &lg); err != nil {
 			fmt.Printf("\n err Logs time:%s, %s\n", time.Now(), err)
 		}
 	}()

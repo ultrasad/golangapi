@@ -16,12 +16,22 @@ import (
 	elastics "golangapi/db/elastics"
 )
 
-type customerHandler struct {
-	customer *models.Customer
+type (
+	//CustomerHandler is Customer Controller with model
+	CustomerHandler struct {
+		//customer *models.Customer
+		//CustomerModel models.CustomerStore
+	}
+)
+
+//NewCustomerHandler is new customer
+func NewCustomerHandler() *CustomerHandler {
+	//return &CustomerHandler{u}
+	return &CustomerHandler{}
 }
 
 //Search return search result
-func (h *customerHandler) Search(c echo.Context) (err error) {
+func (h *CustomerHandler) Search(c echo.Context) (err error) {
 
 	//ES Client
 	es := elastics.ESClient()

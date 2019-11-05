@@ -23,6 +23,9 @@ func InitialRoute(e *echo.Echo) {
 	//Init user
 	InitialRouteUser(e)
 
+	//Init user
+	InitialRouteCustomer(e)
+
 	fmt.Println("InitialRoute...")
 
 	//db with gorm

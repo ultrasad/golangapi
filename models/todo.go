@@ -12,10 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
+/* var (
 	databaseName   = "test"
 	collectionName = "test_result_2017"
-)
+) */
 
 type (
 
@@ -31,10 +31,10 @@ type (
 	//TodoModel is mongo db
 	TodoModel struct {
 		// Client
-		//client *mongo.Client
+		client *mongo.Client
 		// Collections.
 		//collection *mongo.Collection
-		database *mongo.Database
+		//database *mongo.Database
 	}
 
 	// Todo is todo
@@ -60,16 +60,17 @@ type (
 )
 
 // NewTodoModel is active new
-/* func NewTodoModel(client *mongo.Client) *TodoModel {
+func NewTodoModel(client *mongo.Client) *TodoModel {
 	return &TodoModel{
 		client: client,
 	}
-} */
-func NewTodoModel(database *mongo.Database) *TodoModel {
+}
+
+/* func NewTodoModel(database *mongo.Database) *TodoModel {
 	return &TodoModel{
 		database: database,
 	}
-}
+} */
 
 // CreateTodo is all todos
 func (m *TodoModel) CreateTodo(todo *Todo) (*Todo, error) {
@@ -86,8 +87,8 @@ func (m *TodoModel) CreateTodo(todo *Todo) (*Todo, error) {
 	todo.Timestamp = time.Now().Local()
 	todo.Done = false
 
-	//res, err := m.client.Database("document").Collection("todo").InsertOne(ctx, &todo)
-	res, err := m.database.Collection("todo").InsertOne(ctx, &todo)
+	res, err := m.client.Database("document").Collection("todo").InsertOne(ctx, &todo)
+	//res, err := m.database.Collection("todo").InsertOne(ctx, &todo)
 
 	if err != nil {
 		log.Printf(`{"time": "%s", "message": "{%s}", "level": "error"`, time.Now().Local().Format("2006-01-02T15:04:05Z"), err)
@@ -121,8 +122,8 @@ func (m *TodoModel) UpdateTodo(id string, todo *Todo) (*Todo, error) {
 
 	fmt.Println("new update todo:", todo)
 
-	//_, err = m.client.Database("document").Collection("todo").UpdateOne(ctx, filter, update)
-	_, err = m.database.Collection("todo").UpdateOne(ctx, filter, update)
+	_, err = m.client.Database("document").Collection("todo").UpdateOne(ctx, filter, update)
+	//_, err = m.database.Collection("todo").UpdateOne(ctx, filter, update)
 	//fmt.Println("Updated a Todo: ", res)
 
 	return todo, err
@@ -142,8 +143,8 @@ func (m *TodoModel) DeleteTodo(id string) (int64, error) {
 	defer cancel()
 
 	// delete document
-	//res, err := m.client.Database("document").Collection("todo").DeleteOne(ctx, bson.M{"_id": objectID})
-	res, err := m.database.Collection("todo").DeleteOne(ctx, bson.M{"_id": objectID})
+	res, err := m.client.Database("document").Collection("todo").DeleteOne(ctx, bson.M{"_id": objectID})
+	//res, err := m.database.Collection("todo").DeleteOne(ctx, bson.M{"_id": objectID})
 	if err != nil {
 		//log.Fatal(err)
 		return 0, err
@@ -158,7 +159,7 @@ func (m *TodoModel) DeleteTodo(id string) (int64, error) {
 // GetTodo is get todo by id
 func (m *TodoModel) GetTodo(id string) (Todo, error) {
 
-	fmt.Println("call todo model time => ", time.Now().Local())
+	//fmt.Println("call todo model time => ", time.Now().Local())
 
 	var (
 		todo Todo
@@ -175,10 +176,27 @@ func (m *TodoModel) GetTodo(id string) (Todo, error) {
 	//ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	//defer cancel()
 
+	// create a new timeout context
+	/* ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel() */
+
 	filter := bson.M{"_id": objectID}
 
-	//err = m.client.Database("document").Collection("todo").FindOne(context.TODO(), filter).Decode(&todo)
-	err = m.database.Collection("todo").FindOne(context.TODO(), filter).Decode(&todo)
+	//check the connection
+	/* err = m.client.Ping(context.TODO(), nil)
+	if err != nil {
+		fmt.Println("client mongodb ping...")
+		log.Fatal(err)
+	} */
+
+	//clientD := m.client.Database("document").Collection("todo")
+	//curr := client.Database("document").Collection("todo")
+
+	//fmt.Println("todo model curr time => ", time.Now().Local())
+
+	err = m.client.Database("document").Collection("todo").FindOne(context.TODO(), filter).Decode(&todo)
+	//err = curr.FindOne(context.TODO(), filter).Decode(&todo)
+	//err = clientD.FindOne(ctx, filter).Decode(&todo)
 	if err != nil {
 		//log.Fatal(err)
 		//timeStamp, _ := time.Parse("2006-01-02 15:04:05", todo.Timestamp.String())
@@ -194,7 +212,7 @@ func (m *TodoModel) GetTodo(id string) (Todo, error) {
 
 	//fmt.Println("time => ", timeStamp.Format("2006-01-02 15:04:05"))
 
-	fmt.Println("return data todo model time => ", time.Now().Local())
+	//fmt.Println("return data todo model time => ", time.Now().Local())
 
 	//fmt.Printf("Found a single document: %+v\n", todo)
 	return todo, err
@@ -221,8 +239,8 @@ func (m *TodoModel) GetAllTodo(page int64, limit int64) ([]*Todo, error) {
 	findOptions.SetSkip(skips)
 	findOptions.SetSort(bson.M{"_id": -1})
 
-	//cur, err := m.client.Database("document").Collection("todo").Find(context.TODO(), filter, findOptions)
-	cur, err := m.database.Collection("todo").Find(context.TODO(), filter, findOptions)
+	cur, err := m.client.Database("document").Collection("todo").Find(context.TODO(), filter, findOptions)
+	//cur, err := m.database.Collection("todo").Find(context.TODO(), filter, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}

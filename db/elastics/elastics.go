@@ -48,6 +48,8 @@ func ConnectES() *elasticsearch.Client {
 	//info, _ := esClient.Info()
 	//fmt.Println("ES Info",info)
 
+	fmt.Println("Connected to Elasticseasch!")
+
 	return esClient
 }
 

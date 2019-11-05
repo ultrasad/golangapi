@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"golangapi/models"
 
@@ -12,7 +11,7 @@ import (
 )
 
 type (
-	//TodoHandler is Todo
+	//TodoHandler is Todo Controller with model
 	TodoHandler struct {
 		TodoModel models.TodoStore
 	}
@@ -26,7 +25,7 @@ func NewTodoHandler(u models.TodoStore) *TodoHandler {
 //GetTodo reponse todo by id, (//FindTodo)
 func (h *TodoHandler) GetTodo(c echo.Context) error {
 
-	fmt.Println("call handler time => ", time.Now().Local())
+	//fmt.Println("call handler time => ", time.Now().Local())
 
 	id := c.Param("todoID")
 	result, err := h.TodoModel.GetTodo(id)
