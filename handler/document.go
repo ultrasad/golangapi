@@ -2,9 +2,13 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
+	"golangapi/db/mgo"
 	mongoClient "golangapi/db/mongo"
+
+	mGoBson "github.com/globalsign/mgo/bson"
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
@@ -101,4 +105,27 @@ func (h *DocHandler) Find(c echo.Context) error {
 	}
 	//return err
 	return c.JSON(http.StatusOK, result)
+}
+
+//FindWithMgo ...
+func (h *DocHandler) FindWithMgo(c echo.Context) error {
+
+	id := mGoBson.ObjectIdHex(c.Param("docID"))
+
+	var (
+		doc Document
+		//err error
+	)
+
+	conn := mgo.MongoClient().Copy()
+	defer conn.Close()
+
+	err := conn.DB("document").C("todo").FindId(id).One(&doc)
+	if err != nil {
+		fmt.Println("find doc err: ", err)
+	}
+	//return doc, err
+
+	//return err
+	return c.JSON(http.StatusOK, doc)
 }

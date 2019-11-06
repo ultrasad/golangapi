@@ -29,10 +29,13 @@ func ConnectMgo() *mgo.Session {
 	//info, _ := mongoDB.BuildInfo()
 	//fmt.Println("Mgo Info",info)
 
+	fmt.Println("Connected to MongoDB with mgo!")
+
 	return mongoDB
 }
 
 // MongoClient return MongoDB Session
 func MongoClient() *mgo.Session {
+	fmt.Println("mgo session...")
 	return mongoDB
 }

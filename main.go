@@ -6,6 +6,7 @@ import (
 	//"net/http"
 	//"golangapi/db/mongo"
 	"golangapi/db/elastics"
+	"golangapi/db/mgo"
 	"golangapi/handler"
 
 	//"golangapi/db/mgo"
@@ -81,7 +82,7 @@ func main() {
 	//mongo.Dconnect()
 
 	//Start Mgo Connect
-	//mgo.ConnectMgo()
+	mgo.ConnectMgo()
 
 	//Start Elastics Connect
 	elastics.ConnectES()

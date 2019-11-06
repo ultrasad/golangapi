@@ -1,8 +1,8 @@
 package router
 
 import (
-	"golangapi/handler"
 	"golangapi/db/mongo"
+	"golangapi/handler"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,6 +18,9 @@ func InitialRouteDoc(e *echo.Echo) {
 	//doc := handler.DocHandler{}
 	e.GET("/docs", doc.Test)
 	e.GET("/find_docs", doc.Find)
+
+	//FindWithMgo
+	e.GET("/find_doc_mgo/:docID", doc.FindWithMgo)
 
 	//e.PUT("/todos/:id", todo.UpdateTodo) //update, done
 
