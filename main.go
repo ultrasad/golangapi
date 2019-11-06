@@ -9,7 +9,7 @@ import (
 	"golangapi/handler"
 
 	//"golangapi/db/mgo"
-	"golangapi/db/mongo"
+
 	"golangapi/router"
 
 	//"golangapi/logger"
@@ -73,7 +73,12 @@ func main() {
 
 	//Start MongoDB Connect
 	//Hold Mongo lib, It slower than mgo lib client
-	mongo.ConnectMongo()
+	//mongoClient := mongo.ConnectMongo()
+	//defer mongoClient.Disconnect(context.TODO())
+
+	//new mongo connect
+	//mongo.DataStoreNew()
+	//mongo.Dconnect()
 
 	//Start Mgo Connect
 	//mgo.ConnectMgo()

@@ -267,6 +267,17 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 					id = res.Header().Get(echo.HeaderXRequestID)
 				}
 
+				/* if json.Valid(resBody) {
+					// input contains valid json
+					in := []byte(`{"test":"xxx"}`)
+					var raw map[string]interface{}
+					json.Unmarshal(in, &raw)
+					raw["no_json"] = resBody
+					out, _ := json.Marshal(raw)
+					fmt.Println(string(out))
+					resBody = (out)
+				} */
+
 				jsonStr := fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody)
 
 				jsonData := make(map[string]interface{})
@@ -274,8 +285,16 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 					//log reponse
 
 					log.Warn("Request:Reponse error - " + jsonStr)
-
 					fmt.Println("err jsonData  => ", err)
+
+					/* in := []byte(`{"test":"xxx"}`)
+					var raw map[string]interface{}
+					json.Unmarshal(in, &raw)
+					raw["no_json"] = resBody
+					resBody, _ = json.Marshal(raw)
+
+					jsonStr = fmt.Sprintf(`{"id":"%s","req":%s,"res":%s}`, c.Response().Header().Get(echo.HeaderXRequestID), reqB, resBody) */
+
 				}
 
 				fields := []zapcore.Field{

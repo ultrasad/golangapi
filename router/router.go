@@ -24,7 +24,10 @@ func InitialRoute(e *echo.Echo) {
 	InitialRouteUser(e)
 
 	//Init user
-	InitialRouteCustomer(e)
+	InitialRouteCus(e)
+
+	//Init doc
+	InitialRouteDoc(e)
 
 	fmt.Println("InitialRoute...")
 

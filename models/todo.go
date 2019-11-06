@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	//mongoClient "golangapi/db/mongo"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -159,7 +161,7 @@ func (m *TodoModel) DeleteTodo(id string) (int64, error) {
 // GetTodo is get todo by id
 func (m *TodoModel) GetTodo(id string) (Todo, error) {
 
-	//fmt.Println("call todo model time => ", time.Now().Local())
+	fmt.Println("call todo model time => ", time.Now().Local())
 
 	var (
 		todo Todo
@@ -192,9 +194,12 @@ func (m *TodoModel) GetTodo(id string) (Todo, error) {
 	//clientD := m.client.Database("document").Collection("todo")
 	//curr := client.Database("document").Collection("todo")
 
-	//fmt.Println("todo model curr time => ", time.Now().Local())
+	fmt.Println("todo model curr time => ", time.Now().Local())
+
+	//client := mongoClient.ClientManager()
 
 	err = m.client.Database("document").Collection("todo").FindOne(context.TODO(), filter).Decode(&todo)
+	//err = client.Database("document").Collection("todo").FindOne(context.TODO(), filter).Decode(&todo)
 	//err = curr.FindOne(context.TODO(), filter).Decode(&todo)
 	//err = clientD.FindOne(ctx, filter).Decode(&todo)
 	if err != nil {
@@ -212,7 +217,7 @@ func (m *TodoModel) GetTodo(id string) (Todo, error) {
 
 	//fmt.Println("time => ", timeStamp.Format("2006-01-02 15:04:05"))
 
-	//fmt.Println("return data todo model time => ", time.Now().Local())
+	fmt.Println("return data todo model time => ", time.Now().Local())
 
 	//fmt.Printf("Found a single document: %+v\n", todo)
 	return todo, err
