@@ -147,6 +147,27 @@ func (u *UsersModelStub) GetAllUser() []models.User {
 	return users
 }
 
+func (u *UsersModelStub) GetAllCustomer() []models.CustomerX {
+	customers := []models.CustomerX{}
+
+	customers = append(customers, models.CustomerX{
+		ID: 1,
+		//Prefix: "Mr",
+		FirstName: "Hanajung",
+		LastName:  "Kiss",
+		Email:     "kissing-bear@hotmail.com",
+
+		//CreateDate:       tt,
+		//CreateDateString: "2019-11-04",
+
+		//Timestamp: tt,
+	})
+
+	fmt.Println("customers => ", customers)
+
+	return customers
+}
+
 func checkError(err error, t *testing.T) {
 	if err != nil {
 		t.Errorf("An error occurred. %v", err)

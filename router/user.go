@@ -7,6 +7,7 @@ import (
 	gormdb "golangapi/db/gorm"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 //InitialRouteUser is init user route
@@ -25,4 +26,14 @@ func InitialRouteUser(e *echo.Echo) {
 
 	//user test with manual db connect
 	e.GET("/allusers", user.GetAllUser)
+
+	//2019-11-16, new db workshop
+
+	// Restricted group
+	r := e.Group("/api")
+	r.Use(middleware.JWT([]byte("secret")))
+	r.GET("/customers", user.GetAllCustomer)
+
+	//e.GET("/customers", user.GetAllCustomer)
+
 }

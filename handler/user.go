@@ -176,6 +176,20 @@ func (h *UserHandler) GetAllUser(c echo.Context) error {
 	//return c.JSON(200, `[{"id":1,"prefix":"Mr","name":"Hanajung","email":"kissing-bear@hotmail.com","create_date":"2019-10-24","timestamp":"2014-11-12T11:45:26.371Z"}]`)
 }
 
+//GetAllCustomer is get all user
+func (h *UserHandler) GetAllCustomer(c echo.Context) error {
+	result := h.UserModel.GetAllCustomer()
+
+	/* for i, ar := range result {
+
+		result[i].CreateDateString = result[i].CreateDate.Local().Format("2006-01-02")
+
+		fmt.Println("reponse date => ", i, ar.CreateDate)
+	} */
+
+	return c.JSON(http.StatusOK, result)
+}
+
 /* func (h *UserHandler) GetAllUser(c echo.Context) error {
 
 	//result := models.GetUsers()

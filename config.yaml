@@ -7,7 +7,7 @@ mongo:
 mysql:
   user: root
   pass: 
-  db: test
+  db: workshop
   protocal: tcp(127.0.0.1:3306)
 mysql1:
   user: interfacedev

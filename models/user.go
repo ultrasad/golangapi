@@ -32,6 +32,8 @@ type (
 		GetAllUser() []User
 		//CreateUser(*User) (*User, error)
 		CreateUserWithTransection(*User) (*User, error)
+
+		GetAllCustomer() []CustomerX
 	}
 
 	//UserModel ...
@@ -54,9 +56,29 @@ type (
 		//Timestamp SpecialDate `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
 	}
 
+	//CustomerX is customer
+	CustomerX struct {
+		//BaseModel
+		//ID uint64 `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
+		ID        uint64 `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
+		FirstName string `json:"first_name" gorm:"column:firstName"`
+		LastName  string `json:"last_name" gorm:"column:lastName"`
+		Email     string `json:"email" gorm:"column:email"`
+		Gender    string `json:"gender" gorm:"column:gender"`
+		//CreateDate       time.Time `json:"-" gorm:"column:create_date"`
+		//CreateDateString string    `json:"create_date" gorm:"-"`
+		//Timestamp        time.Time `json:"timestamp" gorm:"column:timestamp" sql:"DEFAULT:current_timestamp"`
+	}
+
 	//DBFunc gorm return error
 	DBFunc func(tx *gorm.DB) error // func type which accept *gorm.DB and return error
 )
+
+//TableName change table name
+// set Customer's table name to be `customer`
+func (CustomerX) TableName() string {
+	return "customers"
+}
 
 //NewUserModel ...
 func NewUserModel(db *gorm.DB) *UserModel {
@@ -216,6 +238,26 @@ func (h *UserModel) GetAllUser() []User {
 	//fmt.Println("User => ", user)
 
 	return user
+}
+
+//GetAllCustomer is get all user
+func (h *UserModel) GetAllCustomer() []CustomerX {
+	//db := gormdb.ConnectMySQL()
+	db := h.db
+	//defer db.Close()
+	//result := Users{}
+	customer := []CustomerX{}
+
+	//err := db.Debug().Where("name = ?", "Hanajung").Order("id desc, name").Find(&user).Error
+	err := db.Debug().Order("id desc, firstName").Find(&customer).Error
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	//result.Users = user
+	//fmt.Println("User => ", user)
+
+	return customer
 }
 
 /* func (h *UserModel) GetAllUser() Users {
